@@ -1,0 +1,37 @@
+{
+  "name": "terminal-web",
+  "version": "1.0.0",
+  "description": "Una terminal web responsiva con interfaz moderna",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 3000 -o",
+    "dev": "npx live-server --port=3000",
+    "build": "echo 'No build step required for static files'",
+    "deploy": "echo 'Deploy to Firebase or your preferred hosting service'"
+  },
+  "keywords": [
+    "terminal",
+    "web",
+    "responsive",
+    "javascript",
+    "css",
+    "html"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/terminal-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/terminal-web/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/terminal-web#readme",
+  "dependencies": {
+    "dotenv": "^17.2.0"
+  }
+}

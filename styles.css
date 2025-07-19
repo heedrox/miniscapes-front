@@ -1,0 +1,565 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.terminal-container {
+    width: 100vw;
+    height: 100vh;
+    background: #0c0c0c;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #404040;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.close {
+    background: #ff5f56;
+}
+
+.minimize {
+    background: #ffbd2e;
+}
+
+.maximize {
+    background: #27ca3f;
+}
+
+.terminal-title {
+    color: #cccccc;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.terminal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0c0c0c;
+    min-height: 0; /* Importante para que flex funcione correctamente */
+}
+
+.terminal-output {
+    flex: 1;
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 20px 20px 0 20px;
+    padding-right: 35px; /* Más espacio para el scrollbar */
+    scroll-behavior: smooth;
+    min-height: 0; /* Importante para que flex funcione correctamente */
+}
+
+.terminal-output::-webkit-scrollbar {
+    width: 16px !important;
+    background-color: #1a1a1a !important;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: #2a2a2a !important;
+    border-radius: 8px;
+    border: 2px solid #444444 !important;
+    margin: 2px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: #888888 !important;
+    border-radius: 8px;
+    border: 2px solid #aaaaaa !important;
+    min-height: 30px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: #aaaaaa !important;
+}
+
+.terminal-output::-webkit-scrollbar-corner {
+    background: #1a1a1a !important;
+}
+
+/* Para Firefox */
+.terminal-output {
+    scrollbar-width: auto !important;
+    scrollbar-color: #888888 #2a2a2a !important;
+}
+
+.output-line {
+    margin-bottom: 8px;
+    word-wrap: break-word;
+}
+
+.prompt {
+    color: #27ca3f;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.command {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.text {
+    color: #cccccc;
+}
+
+.error {
+    color: #ff5f56;
+}
+
+.success {
+    color: #27ca3f;
+}
+
+.warning {
+    color: #ffbd2e;
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    background: #0c0c0c;
+    border-top: 1px solid #404040;
+    padding: 15px 20px;
+    min-height: 60px;
+    flex-shrink: 0; /* Evitar que se encoja */
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    margin-left: 10px;
+    position: relative;
+    caret-color: transparent; /* Ocultar el cursor nativo */
+}
+
+.terminal-input::placeholder {
+    color: #666666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .terminal-output {
+        font-size: 13px;
+        padding: 15px 15px 0 15px;
+        padding-right: 30px;
+    }
+    
+    .terminal-input-line {
+        padding: 12px 15px;
+        min-height: 50px;
+    }
+    
+    .terminal-input {
+        font-size: 13px;
+    }
+    
+    .terminal-title {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-output {
+        font-size: 12px;
+        padding: 10px 10px 0 10px;
+        padding-right: 25px;
+    }
+    
+    .terminal-input-line {
+        padding: 10px;
+        min-height: 45px;
+    }
+    
+    .terminal-input {
+        font-size: 12px;
+    }
+    
+    .terminal-header {
+        padding: 8px 12px;
+    }
+    
+    .button {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Animación de cursor personalizado */
+.custom-cursor {
+    animation: blink 1s infinite;
+    line-height: 1.5;
+    vertical-align: baseline;
+    display: inline-block;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Efectos hover para los botones */
+.button:hover {
+    filter: brightness(1.2);
+}
+
+/* Estilo para comandos ejecutados */
+.command-executed {
+    color: #888888;
+    font-style: italic;
+}
+
+/* Estilos para respuestas del dron */
+.drone-response {
+    color: #27ca3f;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.drone-message {
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(39, 202, 63, 0.1), rgba(31, 157, 46, 0.1));
+    border-left: 3px solid #27ca3f;
+    padding: 8px 12px;
+    margin: 4px 0 8px 0;
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Estilos para Jackson (colores rojos) */
+.drone-jackson .drone-response {
+    color: #e74c3c;
+}
+
+.drone-jackson .drone-message {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+    border-left: 3px solid #e74c3c;
+}
+
+.drone-jackson .files-tab {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.drone-jackson .files-tab:hover {
+    background: linear-gradient(135deg, #f39c12, #e74c3c);
+}
+
+.drone-jackson .file-item::before {
+    background: linear-gradient(180deg, #e74c3c, #c0392b);
+}
+
+.drone-jackson .file-item:hover {
+    border-color: #e74c3c;
+}
+
+.drone-jackson .file-actions button:hover {
+    background: linear-gradient(135deg, #e74c3c, #f39c12);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.drone-jackson .custom-cursor {
+    color: #e74c3c;
+}
+
+.drone-jackson .terminal-title {
+    color: #e74c3c;
+}
+
+.drone-jackson .prompt {
+    color: #e74c3c;
+}
+
+.drone-jackson .command-executed {
+    color: #e74c3c;
+}
+
+.drone-jackson .terminal-input {
+    color: #e74c3c;
+}
+
+.drone-jackson .terminal-input::placeholder {
+    color: rgba(231, 76, 60, 0.6);
+}
+
+/* Panel de archivos del dron */
+.files-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: #1a1a1a;
+    border-left: 2px solid #404040;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.files-panel.open {
+    right: 0;
+}
+
+.files-header {
+    background: #2d2d2d;
+    padding: 15px 20px;
+    border-bottom: 1px solid #404040;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.files-header h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 16px;
+}
+
+.close-panel {
+    background: none;
+    border: none;
+    color: #cccccc;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-panel:hover {
+    background: #404040;
+    color: #ffffff;
+}
+
+.files-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.no-files {
+    text-align: center;
+    color: #888888;
+    margin-top: 50px;
+}
+
+.no-files p {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+/* Elementos de archivo */
+.file-item {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #2a2a2a, #333333);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 12px;
+    border: 1px solid #404040;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.file-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #27ca3f, #1f9d2e);
+    border-radius: 2px 0 0 2px;
+}
+
+.file-item:hover {
+    background: linear-gradient(135deg, #333333, #404040);
+    border-color: #27ca3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.file-icon {
+    font-size: 28px;
+    margin-right: 18px;
+    width: 40px;
+    text-align: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-type {
+    color: #888888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.file-description {
+    color: #aaaaaa;
+    font-size: 13px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.file-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.file-actions button {
+    background: linear-gradient(135deg, #404040, #505050);
+    border: none;
+    color: #cccccc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-actions button:hover {
+    background: linear-gradient(135deg, #27ca3f, #2edb4a);
+    color: #ffffff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(39, 202, 63, 0.3);
+}
+
+.file-actions button:active {
+    transform: scale(0.95);
+}
+
+/* Solapa para abrir el panel */
+.files-tab {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #27ca3f, #1f9d2e);
+    border-radius: 10px 0 0 10px;
+    padding: 15px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 999;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.files-tab:hover {
+    background: linear-gradient(135deg, #2edb4a, #27ca3f);
+    transform: translateY(-50%) translateX(-5px);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.4);
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-weight: 600;
+}
+
+.tab-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.tab-text {
+    font-size: 12px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+}
+
+/* Responsive para el panel */
+@media (max-width: 768px) {
+    .files-panel {
+        width: 100vw;
+        right: -100vw;
+    }
+    
+    .files-tab {
+        padding: 12px 8px;
+    }
+    
+    .tab-icon {
+        font-size: 20px;
+    }
+    
+    .tab-text {
+        font-size: 10px;
+    }
+} 
