@@ -2,10 +2,10 @@
   "name": "terminal-web",
   "version": "1.0.0",
   "description": "Una terminal web responsiva con interfaz moderna",
-  "main": "index.html",
+  "main": "web/index.html",
   "scripts": {
-    "start": "npx http-server -p 3000 -o",
-    "dev": "npx live-server --port=3000",
+    "start": "npx http-server web -p 3000 -o",
+    "dev": "npx live-server web --port=3000",
     "build": "echo 'No build step required for static files'",
     "deploy": "echo 'Deploy to Firebase or your preferred hosting service'"
   },

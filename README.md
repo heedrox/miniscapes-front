@@ -1,58 +1,86 @@
-# Terminal Web
+# Terminal Web - Sistema de Control de Drones
 
-Una terminal web responsiva con interfaz moderna que simula una terminal real en el navegador.
+Una terminal web responsiva para el control de drones mediante lenguaje natural.
+
+## 📁 Estructura del Proyecto
+
+```
+twin-islands-front/
+├── web/                    # Archivos de producción
+│   ├── index.html         # Página principal
+│   ├── script.js          # Lógica de la aplicación
+│   ├── styles.css         # Estilos y temas
+│   ├── config.js          # Configuración
+│   └── README.md          # Documentación de producción
+├── node_modules/          # Dependencias de desarrollo
+├── photos/               # Imágenes del proyecto
+├── package.json          # Configuración de Node.js
+├── env.config           # Variables de entorno
+└── README.md            # Este archivo
+```
 
 ## 🚀 Características
 
-- **Interfaz moderna**: Diseño inspirado en terminales reales con tema oscuro
-- **Totalmente responsiva**: Funciona perfectamente en desktop, tablet y móvil
-- **Comandos interactivos**: Ejecuta comandos básicos como en una terminal real
-- **Historial de comandos**: Navega por comandos anteriores con las flechas ↑↓
-- **Auto-scroll**: La terminal se desplaza automáticamente al final
-- **Fuente monoespaciada**: Usa JetBrains Mono para una experiencia auténtica
+- **Control de drones**: Soporte para Johnson (verde) y Jackson (rojo)
+- **Lenguaje natural**: Control mediante instrucciones en español
+- **Validación de acceso**: URLs seguras con códigos únicos
+- **Historial de conversación**: Carga automática de conversaciones previas
+- **Panel de archivos**: Visualización de archivos capturados
+- **Interfaz responsiva**: Funciona en desktop, tablet y móvil
+- **Temas dinámicos**: Colores según el dron activo
 
 ## 📱 Comandos Disponibles
 
+### Comandos Básicos
 - `help` - Muestra la lista de comandos disponibles
 - `clear` - Limpia la terminal
-- `date` - Muestra la fecha y hora actual
-- `echo [texto]` - Repite el texto proporcionado
-- `ls` - Lista archivos (simulado)
-- `pwd` - Muestra el directorio actual
-- `whoami` - Muestra el usuario actual
-- `neofetch` - Muestra información del sistema
+- `files` - Abre panel de archivos
+- `env` - Muestra configuración del entorno
+
+### Control de Entorno
+- `local` - Cambia a entorno local
+- `production` - Cambia a entorno de producción
+- `toggle` - Alterna entre entornos
+
+### Control por LLM
+- Escribe instrucciones naturales como:
+  - "Toma una foto de la costa"
+  - "Graba un video del vuelo"
+  - "Escanea el terreno"
+  - "Muestra el estado del dron"
 
 ## 🛠️ Instalación y Uso
 
-### Opción 1: Abrir directamente
-Simplemente abre el archivo `index.html` en tu navegador.
-
-### Opción 2: Servidor local (recomendado)
+### Desarrollo Local
 ```bash
 # Instalar dependencias
 npm install
 
 # Iniciar servidor de desarrollo
-npm run dev
-
-# O usar servidor HTTP simple
 npm start
 ```
 
 El proyecto se abrirá automáticamente en `http://localhost:3000`
 
-## 🎨 Personalización
+### URLs de Acceso
+- **Johnson**: `http://localhost:3000/johnson/CODIGO/`
+- **Jackson**: `http://localhost:3000/jackson/CODIGO/`
+- **Con parámetros**: `http://localhost:3000/?/dron/CODIGO/`
 
-### Colores
-Los colores principales están definidos en `styles.css`:
-- Fondo: `#0c0c0c`
-- Texto: `#cccccc`
-- Prompt: `#27ca3f` (verde)
-- Errores: `#ff5f56` (rojo)
-- Advertencias: `#ffbd2e` (amarillo)
+## 🎨 Temas de Drones
 
-### Comandos
-Puedes agregar nuevos comandos editando el método `processCommand()` en `script.js`.
+### Johnson (Verde)
+- Prompt y comandos: `#27ca3f`
+- Respuestas del dron: Verde
+- Panel de archivos: Verde
+
+### Jackson (Rojo)
+- Prompt y comandos: `#e74c3c`
+- Respuestas del dron: Rojo
+- Panel de archivos: Rojo
+
+### Configuración
+Los temas están definidos en `web/styles.css` y se aplican automáticamente según el dron detectado en la URL.
 
 ## 📱 Responsive Design
 
@@ -63,31 +91,32 @@ El proyecto incluye breakpoints para:
 
 ## 🚀 Despliegue
 
-### Firebase Hosting
-```bash
-# Instalar Firebase CLI
-npm install -g firebase-tools
+### Archivos de Producción
+Los archivos listos para producción están en el directorio `web/`:
+- `index.html`
+- `script.js`
+- `styles.css`
+- `config.js`
 
-# Inicializar proyecto Firebase
-firebase init hosting
-
-# Desplegar
-firebase deploy
-```
-
-### Otros servicios
+### Servicios de Hosting
 El proyecto es compatible con cualquier servicio de hosting estático:
+- Firebase Hosting
 - Netlify
 - Vercel
 - GitHub Pages
 - Surge.sh
 
+### Configuración de Producción
+Asegúrate de configurar las URLs de la API en `web/config.js` para el entorno de producción.
+
 ## 🎯 Características Técnicas
 
 - **Vanilla JavaScript**: Sin frameworks, puro JS
 - **CSS Grid/Flexbox**: Layout moderno y flexible
-- **Font Awesome**: Iconos para archivos
 - **Google Fonts**: JetBrains Mono para tipografía
+- **Fetch API**: Comunicación con backend LLM
+- **URL Validation**: Detección de dron y código
+- **Dynamic Theming**: Temas según dron activo
 
 ## 📄 Licencia
 

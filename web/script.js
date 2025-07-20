@@ -12,13 +12,28 @@ class Terminal {
         this.filesContent = document.getElementById('filesContent');
         this.closePanel = document.getElementById('closePanel');
         
+        // Verificar acceso válido antes de configurar
+        if (!config.isValidAccess) {
+            this.showAccessError();
+            return;
+        }
+        
         // Configurar dron
         this.setupDrone();
+        
+        // Limpiar output para preparar la carga del historial
+        this.output.innerHTML = '';
         
         this.init();
     }
     
     init() {
+        // Verificar acceso válido antes de inicializar
+        if (!config.isValidAccess) {
+            this.showAccessError();
+            return;
+        }
+        
         this.input.addEventListener('keydown', (e) => this.handleKeyDown(e));
         this.input.addEventListener('input', () => this.updateCursorPosition());
         this.input.addEventListener('click', () => this.updateCursorPosition());
@@ -40,14 +55,116 @@ class Terminal {
         
         // Actualizar posición del cursor cuando se redimensiona la ventana
         window.addEventListener('resize', () => this.updateCursorPosition());
+        
+        // Cargar historial inicial
+        this.loadInitialHistory();
+    }
+    
+    async loadInitialHistory() {
+        try {
+            // Construir URL con parámetros para GET
+            const params = new URLSearchParams({
+                drone: config.currentDrone
+            });
+            
+            // Agregar código si está disponible
+            if (config.currentCode) {
+                params.append('code', config.currentCode);
+            }
+            
+            const url = `${config.INIT_API_URL}?${params.toString()}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Mostrar mensaje de conexión
+            const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
+            this.addOutputLine(`Conectando a dron@${config.currentDrone}...`, 'text');
+            this.addOutputLine('', 'text');
+            
+            // Mostrar mensajes del historial como si fueran normales
+            if (data.messages && Array.isArray(data.messages)) {
+                data.messages.forEach(message => {
+                    if (message.user === 'player') {
+                        // Mensaje del usuario
+                        this.addOutputLine(`$ ${message.message}`, 'command-executed');
+                    } else if (message.user === 'drone') {
+                        // Mensaje del dron
+                        this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
+                        this.addOutputLine(message.message, 'drone-message');
+                    }
+                });
+            }
+            
+            // Mostrar mensaje de bienvenida después del historial
+            this.updateWelcomeMessage(config.currentDrone);
+            
+        } catch (error) {
+            console.error('Error al cargar historial inicial:', error);
+            
+            // Mostrar mensaje de conexión incluso si falla
+            const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
+            this.addOutputLine(`Conectando a dron@${config.currentDrone}...`, 'text');
+            this.addOutputLine('', 'text');
+            
+            // Mostrar mensaje de bienvenida
+            this.updateWelcomeMessage(config.currentDrone);
+        }
+    }
+    
+    showAccessError() {
+        // Deshabilitar input
+        this.input.disabled = true;
+        this.input.placeholder = 'Acceso denegado';
+        
+        // Ocultar cursor personalizado si existe
+        if (this.cursor) {
+            this.cursor.style.display = 'none';
+        }
+        
+        // Limpiar output y mostrar mensaje de error
+        this.output.innerHTML = '';
+        
+        const errorMessages = [
+            '🚫 ERROR DE ACCESO AL DRON',
+            '',
+            '❌ Enlace inválido o acceso denegado.',
+            '',
+            '⚠️  Compruebe que su enlace sea correcto.',
+            '💡 Contacte al administrador si necesita acceso.'
+        ];
+        
+        errorMessages.forEach(line => {
+            this.addOutputLine(line, 'error');
+        });
+        
+        // Actualizar título
+        const terminalTitle = document.getElementById('terminalTitle');
+        if (terminalTitle) {
+            terminalTitle.textContent = 'dron@access-denied:~';
+        }
+        
+        console.error('🚫 Acceso denegado: URL no válida');
     }
     
     setupDrone() {
         const currentDrone = config.currentDrone;
+        const currentCode = config.currentCode;
         const terminalTitle = document.getElementById('terminalTitle');
         
-        // Actualizar título
-        terminalTitle.textContent = `dron@${currentDrone}:~`;
+        // Actualizar título con código si está disponible
+        const titleCode = currentCode ? `/${currentCode}` : '';
+        terminalTitle.textContent = `dron@${currentDrone}${titleCode}:~`;
         
         // Aplicar clase CSS según el dron
         if (currentDrone === 'jackson') {
@@ -57,14 +174,14 @@ class Terminal {
             console.log('🚁 Dron Johnson activado - Personalidad técnica');
         }
         
-        // Actualizar mensaje de bienvenida
-        this.updateWelcomeMessage(currentDrone);
+        // El mensaje de bienvenida se mostrará después de cargar el historial
     }
     
     updateWelcomeMessage(drone) {
+        const codeInfo = config.currentCode ? ` (Código: ${config.currentCode})` : '';
         const welcomeMessages = {
-            johnson: 'Bienvenido al Sistema de Control del Dron Johnson',
-            jackson: '¡Bienvenido al Sistema de Control del Dron Jackson! 🔥'
+            johnson: `Bienvenido al Sistema de Control del Dron Johnson${codeInfo}`,
+            jackson: `¡Bienvenido al Sistema de Control del Dron Jackson! 🔥${codeInfo}`
         };
         
         // Actualizar el primer mensaje de bienvenida
@@ -900,11 +1017,15 @@ class Terminal {
     
     showEnvironment() {
         const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
+        const codeInfo = config.currentCode ? `  Código: ${config.currentCode}` : '  Código: No especificado';
+        
         const envInfo = [
             '🔧 Configuración del Entorno:',
             `  Dron: ${droneName}`,
+            codeInfo,
             `  Entorno: ${config.isDevelopment ? 'Desarrollo (Local)' : 'Producción'}`,
             `  API URL: ${config.DRONE_API_URL}`,
+            `  Init URL: ${config.INIT_API_URL}`,
             '',
             '📋 Comandos de entorno:',
             '  env         - Muestra esta información',
@@ -939,14 +1060,23 @@ class Terminal {
     
     async processLLMCommand(command) {
         try {
+            // Preparar datos para enviar a la API
+            const requestData = {
+                message: command,
+                drone: config.currentDrone
+            };
+            
+            // Agregar código si está disponible
+            if (config.currentCode) {
+                requestData.code = config.currentCode;
+            }
+            
             const response = await fetch(config.DRONE_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    message: command
-                })
+                body: JSON.stringify(requestData)
             });
             
             if (!response.ok) {

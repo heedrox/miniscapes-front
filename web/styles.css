@@ -325,6 +325,17 @@ body {
     color: rgba(231, 76, 60, 0.6);
 }
 
+/* Estilos para acceso denegado */
+.terminal-input:disabled {
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.terminal-input:disabled::placeholder {
+    color: #ff5f56;
+    font-style: italic;
+}
+
 /* Panel de archivos del dron */
 .files-panel {
     position: fixed;
