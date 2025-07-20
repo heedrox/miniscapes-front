@@ -102,6 +102,11 @@ class Terminal {
                         // Mensaje del dron
                         this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
                         this.addOutputLine(message.message, 'drone-message');
+                        
+                        // Mostrar archivos adjuntos si existen
+                        if (message.photoUrls && Array.isArray(message.photoUrls) && message.photoUrls.length > 0) {
+                            this.showAttachments(message.photoUrls);
+                        }
                     }
                 });
             }
@@ -1090,6 +1095,11 @@ class Terminal {
                 const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
                 this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
                 this.addOutputLine(data.message, 'drone-message');
+                
+                // Mostrar archivos adjuntos si existen
+                if (data.photoUrls && Array.isArray(data.photoUrls) && data.photoUrls.length > 0) {
+                    this.showAttachments(data.photoUrls);
+                }
             } else {
                 this.addOutputLine('❌ Error: No se recibió respuesta del dron', 'error');
             }
@@ -1097,6 +1107,36 @@ class Terminal {
         } catch (error) {
             console.error('Error al llamar a la API:', error);
             this.addOutputLine('❌ Error de conexión con el dron', 'error');
+        }
+    }
+    
+    showAttachments(photoUrls) {
+        if (!photoUrls || photoUrls.length === 0) return;
+        
+        // Crear enlaces para cada archivo adjunto
+        const attachments = photoUrls.map((url, index) => {
+            const fileName = this.getFileNameFromUrl(url);
+            return `<a href="${url}" target="_blank" class="attachment-link">${fileName}</a>`;
+        }).join(', ');
+        
+        // Mostrar línea de archivos adjuntos
+        this.addOutputLine(`📎 Ficheros adjuntos: ${attachments}`, 'attachments');
+    }
+    
+    getFileNameFromUrl(url) {
+        try {
+            // Extraer nombre del archivo de la URL
+            const urlParts = url.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            
+            // Si no hay nombre de archivo, usar un nombre genérico
+            if (!fileName || fileName.includes('?')) {
+                return `archivo_${Date.now()}`;
+            }
+            
+            return fileName;
+        } catch (error) {
+            return `archivo_${Date.now()}`;
         }
     }
 }

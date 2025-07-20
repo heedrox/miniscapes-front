@@ -280,6 +280,35 @@ body {
     border-left: 3px solid #e74c3c;
 }
 
+/* Estilos para archivos adjuntos */
+.attachments {
+    color: #888888;
+    font-size: 13px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.attachment-link {
+    color: #27ca3f;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.attachment-link:hover {
+    color: #1e9b2e;
+    text-decoration: underline;
+}
+
+/* Estilos para Jackson (archivos adjuntos rojos) */
+.drone-jackson .attachment-link {
+    color: #e74c3c;
+}
+
+.drone-jackson .attachment-link:hover {
+    color: #c0392b;
+}
+
 .drone-jackson .files-tab {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
