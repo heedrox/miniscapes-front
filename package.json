@@ -7,7 +7,7 @@
     "start": "npx http-server web -p 3000 -o",
     "dev": "npx live-server web --port=3000",
     "build": "echo 'No build step required for static files'",
-    "deploy": "echo 'Deploy to Firebase or your preferred hosting service'"
+    "deploy": "firebase deploy --only hosting:miniscapes"
   },
   "keywords": [
     "terminal",
@@ -21,7 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "http-server": "^14.1.1",
-    "live-server": "^1.2.2"
+    "live-server": "^1.2.0"
   },
   "repository": {
     "type": "git",
