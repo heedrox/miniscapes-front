@@ -18,6 +18,9 @@ class Terminal {
             return;
         }
         
+        // Limpiar zona de archivos al inicializar
+        this.clearFilesPanel();
+        
         // Configurar dron
         this.setupDrone();
         
@@ -217,20 +220,31 @@ class Terminal {
     async executeCommand() {
         const command = this.input.value.trim();
         if (command === '') return;
-        
+
+        // Deshabilitar input y mostrar animación
+        this.input.disabled = true;
+        this.input.classList.add('waiting');
+        this.showInputSpinner();
+
         // Agregar comando al historial
         this.commandHistory.push(command);
         this.historyIndex = this.commandHistory.length;
-        
+
         // Mostrar comando ejecutado
         this.addOutputLine(`$ ${command}`, 'command-executed');
-        
+
         // Ejecutar comando
         await this.processCommand(command);
-        
+
         // Limpiar input
         this.input.value = '';
-        
+
+        // Habilitar input y quitar animación
+        this.input.disabled = false;
+        this.input.classList.remove('waiting');
+        this.hideInputSpinner();
+        this.input.focus();
+
         // Scroll al final
         this.scrollToBottom();
     }
@@ -853,7 +867,7 @@ class Terminal {
         });
         
         // Agregar archivos de ejemplo
-        this.addExampleFiles();
+        // this.addExampleFiles(); // Eliminado para que no se muestren archivos ficticios
     }
     
     addExampleFiles() {
@@ -1063,6 +1077,16 @@ class Terminal {
         this.addOutputLine(`📡 API URL: ${config.DRONE_API_URL}`, 'text');
     }
     
+    // Fetch con timeout
+    async fetchWithTimeout(resource, options = {}, timeout = 20000) {
+        return Promise.race([
+            fetch(resource, options),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('timeout')), timeout)
+            )
+        ]);
+    }
+
     async processLLMCommand(command) {
         try {
             // Preparar datos para enviar a la API
@@ -1070,32 +1094,31 @@ class Terminal {
                 message: command,
                 drone: config.currentDrone
             };
-            
             // Agregar código si está disponible
             if (config.currentCode) {
                 requestData.code = config.currentCode;
             }
-            
-            const response = await fetch(config.DRONE_API_URL, {
+
+            // Usar fetch con timeout de 20 segundos
+            const response = await this.fetchWithTimeout(config.DRONE_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestData)
-            });
-            
+            }, 20000);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const data = await response.json();
-            
+
             // Mostrar solo la respuesta del dron
             if (data.message) {
                 const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
                 this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
                 this.addOutputLine(data.message, 'drone-message');
-                
                 // Mostrar archivos adjuntos si existen
                 if (data.photoUrls && Array.isArray(data.photoUrls) && data.photoUrls.length > 0) {
                     this.showAttachments(data.photoUrls);
@@ -1103,10 +1126,14 @@ class Terminal {
             } else {
                 this.addOutputLine('❌ Error: No se recibió respuesta del dron', 'error');
             }
-            
+
         } catch (error) {
-            console.error('Error al llamar a la API:', error);
-            this.addOutputLine('❌ Error de conexión con el dron', 'error');
+            if (error.message === 'timeout') {
+                this.addOutputLine('❌ Tiempo de espera agotado. Intenta de nuevo.', 'error');
+            } else {
+                console.error('Error al llamar a la API:', error);
+                this.addOutputLine('❌ Error de conexión con el dron', 'error');
+            }
         }
     }
     
@@ -1121,6 +1148,9 @@ class Terminal {
         
         // Mostrar línea de archivos adjuntos
         this.addOutputLine(`📎 Ficheros adjuntos: ${attachments}`, 'attachments');
+        
+        // Agregar archivos a la zona de archivos
+        this.addFilesToPanel(photoUrls);
     }
     
     getFileNameFromUrl(url) {
@@ -1138,6 +1168,116 @@ class Terminal {
         } catch (error) {
             return `archivo_${Date.now()}`;
         }
+    }
+    
+    addFilesToPanel(photoUrls) {
+        if (!photoUrls || photoUrls.length === 0) return;
+        
+        const filesContent = document.getElementById('filesContent');
+        const noFilesDiv = filesContent.querySelector('.no-files');
+        
+        // Remover mensaje de "no hay archivos" si existe
+        if (noFilesDiv) {
+            noFilesDiv.remove();
+        }
+        
+        photoUrls.forEach(url => {
+            const fileName = this.getFileNameFromUrl(url);
+            
+            // Verificar si el archivo ya existe
+            const existingFile = filesContent.querySelector(`[data-url="${url}"]`);
+            if (existingFile) {
+                return; // Archivo ya existe, no agregar
+            }
+            
+            // Crear elemento del archivo
+            const fileElement = document.createElement('div');
+            fileElement.className = 'file-item';
+            fileElement.setAttribute('data-url', url);
+            
+            // Determinar icono según extensión
+            const fileIcon = this.getFileIcon(fileName);
+            
+            fileElement.innerHTML = `
+                <div class="file-icon">${fileIcon}</div>
+                <div class="file-info">
+                    <div class="file-name">${fileName}</div>
+                    <div class="file-url">${url}</div>
+                </div>
+                <div class="file-actions">
+                    <a href="${url}" target="_blank" class="file-download" title="Abrir archivo">
+                        <span>📤</span>
+                    </a>
+                </div>
+            `;
+            
+            // Agregar al final de la lista
+            filesContent.appendChild(fileElement);
+        });
+    }
+    
+    getFileIcon(fileName) {
+        const extension = fileName.split('.').pop()?.toLowerCase();
+        
+        switch (extension) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+            case 'webp':
+                return '🖼️';
+            case 'pdf':
+                return '📄';
+            case 'doc':
+            case 'docx':
+                return '📝';
+            case 'xls':
+            case 'xlsx':
+                return '📊';
+            case 'txt':
+                return '📃';
+            case 'zip':
+            case 'rar':
+            case '7z':
+                return '📦';
+            case 'mp4':
+            case 'avi':
+            case 'mov':
+                return '🎥';
+            case 'mp3':
+            case 'wav':
+            case 'ogg':
+                return '🎵';
+            default:
+                return '📎';
+        }
+    }
+    
+    clearFilesPanel() {
+        const filesContent = document.getElementById('filesContent');
+        
+        // Limpiar todo el contenido
+        filesContent.innerHTML = `
+            <div class="no-files">
+                <p>📁 No hay archivos descargados</p>
+                <p>Usa comandos del dron para capturar contenido</p>
+            </div>
+        `;
+    }
+
+    showInputSpinner() {
+        // Evitar duplicados
+        if (document.getElementById('terminalInputSpinner')) return;
+        const spinner = document.createElement('span');
+        spinner.id = 'terminalInputSpinner';
+        spinner.className = 'terminal-input-spinner';
+        // Insertar después del input
+        this.input.parentNode.appendChild(spinner);
+    }
+
+    hideInputSpinner() {
+        const spinner = document.getElementById('terminalInputSpinner');
+        if (spinner) spinner.remove();
     }
 }
 

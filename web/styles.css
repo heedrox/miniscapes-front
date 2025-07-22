@@ -287,6 +287,7 @@ body {
     margin-top: 4px;
     margin-bottom: 8px;
     font-style: italic;
+    margin-left: 12px;
 }
 
 .attachment-link {
@@ -306,6 +307,79 @@ body {
 }
 
 .drone-jackson .attachment-link:hover {
+    color: #c0392b;
+}
+
+/* Estilos para elementos de archivo en el panel */
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #2a2a2a;
+    transition: background-color 0.2s ease;
+}
+
+.file-item:hover {
+    background-color: #2a2a2a;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    min-width: 24px;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-url {
+    font-size: 12px;
+    color: #888888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-actions {
+    margin-left: 12px;
+}
+
+.file-download {
+    display: inline-block;
+    padding: 6px;
+    color: #27ca3f;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.file-download:hover {
+    background-color: rgba(39, 202, 63, 0.1);
+    color: #1e9b2e;
+}
+
+/* Estilos para Jackson (archivos rojos) */
+.drone-jackson .file-download {
+    color: #e74c3c;
+}
+
+.drone-jackson .file-download:hover {
+    background-color: rgba(231, 76, 60, 0.1);
     color: #c0392b;
 }
 
@@ -363,6 +437,42 @@ body {
 .terminal-input:disabled::placeholder {
     color: #ff5f56;
     font-style: italic;
+}
+
+/* Animación de espera en el input de la terminal */
+.terminal-input.waiting {
+    background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+    background-size: 200% 100%;
+    animation: loadingInputBg 1.2s linear infinite;
+    color: #aaaaaa;
+    cursor: wait;
+}
+
+@keyframes loadingInputBg {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.terminal-input-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-left: 8px;
+    vertical-align: middle;
+    border: 2px solid #27ca3f;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spinInput 0.8s linear infinite;
+}
+
+.drone-jackson .terminal-input-spinner {
+    border: 2px solid #e74c3c;
+    border-top: 2px solid transparent;
+}
+
+@keyframes spinInput {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Panel de archivos del dron */

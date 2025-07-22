@@ -73,11 +73,13 @@ El proyecto se abrirá automáticamente en `http://localhost:3000`
 - Prompt y comandos: `#27ca3f`
 - Respuestas del dron: Verde
 - Panel de archivos: Verde
+- Archivos adjuntos: Enlaces verdes
 
 ### Jackson (Rojo)
 - Prompt y comandos: `#e74c3c`
 - Respuestas del dron: Rojo
 - Panel de archivos: Rojo
+- Archivos adjuntos: Enlaces rojos
 
 ### Configuración
 Los temas están definidos en `web/styles.css` y se aplican automáticamente según el dron detectado en la URL.
