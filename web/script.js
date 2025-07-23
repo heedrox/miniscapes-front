@@ -1106,7 +1106,7 @@ class Terminal {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestData)
-            }, 20000);
+            }, 60000);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
