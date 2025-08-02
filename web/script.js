@@ -914,7 +914,7 @@ class Terminal {
         const fileElement = document.createElement('div');
         fileElement.className = 'file-item';
         fileElement.innerHTML = `
-            <div class="file-icon">${this.getFileIcon(type)}</div>
+            <div class="file-icon">${this.getIconByType(type)}</div>
             <div class="file-info">
                 <div class="file-name">${filename}</div>
                 <div class="file-type">${type}</div>
@@ -935,7 +935,7 @@ class Terminal {
         }
     }
     
-    getFileIcon(type) {
+    getIconByType(type) {
         switch (type) {
             case 'image': return '🖼️';
             case 'audio': return '🎵';
