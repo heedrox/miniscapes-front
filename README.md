@@ -5,18 +5,20 @@ Una terminal web responsiva para el control de drones mediante lenguaje natural.
 ## 📁 Estructura del Proyecto
 
 ```
-twin-islands-front/
+miniscapes-front/
 ├── web/                    # Archivos de producción
-│   ├── index.html         # Página principal
-│   ├── script.js          # Lógica de la aplicación
-│   ├── styles.css         # Estilos y temas
-│   ├── config.js          # Configuración
-│   └── README.md          # Documentación de producción
-├── node_modules/          # Dependencias de desarrollo
-├── photos/               # Imágenes del proyecto
-├── package.json          # Configuración de Node.js
-├── env.config           # Variables de entorno
-└── README.md            # Este archivo
+│   ├── index.html          # Página principal
+│   ├── script.js           # Lógica de la aplicación
+│   ├── styles.css          # Estilos y temas
+│   ├── config.js           # Configuración
+│   └── photos/             # Imágenes del proyecto
+├── node_modules/           # Dependencias de desarrollo
+├── env.config              # Variables de entorno
+├── firebase.json           # Configuración de Firebase
+├── package.json            # Configuración de Node.js
+├── package-lock.json       # Bloqueo de dependencias
+├── README.md               # Este archivo
+└── SESION_INICIAL.md       # Resumen de la sesión inicial
 ```
 
 ## 🚀 Características
