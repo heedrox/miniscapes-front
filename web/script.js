@@ -67,12 +67,17 @@ class Terminal {
         try {
             // Construir URL con parámetros para GET
             const params = new URLSearchParams({
-                drone: config.currentDrone
+                drone: 'johnson' // Siempre usar Johnson
             });
             
-            // Agregar código si está disponible
+            // Agregar código de partida si está disponible (mantiene compatibilidad)
+            if (config.currentPartidaCode) {
+                params.append('code', config.currentPartidaCode);
+            }
+            
+            // Agregar versión (código de acceso) si está disponible
             if (config.currentCode) {
-                params.append('code', config.currentCode);
+                params.append('version', config.currentCode);
             }
             
             const url = `${config.INIT_API_URL}?${params.toString()}`;
@@ -91,42 +96,42 @@ class Terminal {
             const data = await response.json();
             
             // Mostrar mensaje de conexión
-            const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
-            this.addOutputLine(`Conectando a dron@${config.currentDrone}...`, 'text');
+            this.addOutputLine(`Conectando a dron@johnson...`, 'text');
             this.addOutputLine('', 'text');
             
             // Mostrar mensajes del historial como si fueran normales
             if (data.messages && Array.isArray(data.messages)) {
-                data.messages.forEach(message => {
-                    if (message.user === 'player') {
+                data.messages.forEach(messageObj => {
+                    // Extraer el contenido del mensaje según su estructura
+                    if (messageObj.user === 'player') {
                         // Mensaje del usuario
-                        this.addOutputLine(`$ ${message.message}`, 'command-executed');
-                    } else if (message.user === 'drone') {
+                        this.addOutputLine(`$ ${messageObj.message}`, 'command-executed');
+                    } else if (messageObj.user === 'drone') {
                         // Mensaje del dron
-                        this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
-                        this.addOutputLine(message.message, 'drone-message');
+                        this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
+                        this.addOutputLine(messageObj.message, 'drone-message');
                         
                         // Mostrar archivos adjuntos si existen
-                        if (message.photoUrls && Array.isArray(message.photoUrls) && message.photoUrls.length > 0) {
-                            this.showAttachments(message.photoUrls);
+                        if (messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0) {
+                            this.showAttachments(messageObj.photoUrls);
                         }
+                    } else {
+                        // Mensaje genérico (fallback)
+                        this.addOutputLine(messageObj.message || messageObj, 'text');
                     }
                 });
             }
             
             // Mostrar mensaje de bienvenida después del historial
-            this.updateWelcomeMessage(config.currentDrone);
+            this.updateWelcomeMessage(config.currentTheme);
             
         } catch (error) {
-            console.error('Error al cargar historial inicial:', error);
-            
-            // Mostrar mensaje de conexión incluso si falla
-            const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
-            this.addOutputLine(`Conectando a dron@${config.currentDrone}...`, 'text');
+            console.error('Error al cargar historial:', error);
+            this.addOutputLine('⚠️ No se pudo cargar el historial de conversación', 'warning');
             this.addOutputLine('', 'text');
             
             // Mostrar mensaje de bienvenida
-            this.updateWelcomeMessage(config.currentDrone);
+            this.updateWelcomeMessage(config.currentTheme);
         }
     }
     
@@ -166,30 +171,35 @@ class Terminal {
     }
     
     setupDrone() {
-        const currentDrone = config.currentDrone;
         const currentCode = config.currentCode;
+        const currentPartidaCode = config.currentPartidaCode;
+        const currentTheme = config.currentTheme;
         const terminalTitle = document.getElementById('terminalTitle');
         
-        // Actualizar título con código si está disponible
+        // Actualizar título con códigos
         const titleCode = currentCode ? `/${currentCode}` : '';
-        terminalTitle.textContent = `dron@${currentDrone}${titleCode}:~`;
+        const partidaCode = currentPartidaCode ? `/${currentPartidaCode}` : '';
+        terminalTitle.textContent = `dron@johnson${titleCode}${partidaCode}:~`;
         
-        // Aplicar clase CSS según el dron
-        if (currentDrone === 'jackson') {
+        // Aplicar clase CSS según el tema
+        if (currentTheme === 'red') {
             document.body.classList.add('drone-jackson');
-            console.log('🚁 Dron Jackson activado - Personalidad pasional');
+            console.log('🚁 Realidad Roja activada - Código 1623');
         } else {
-            console.log('🚁 Dron Johnson activado - Personalidad técnica');
+            console.log('🚁 Realidad Verde activada - Código 4815');
         }
         
         // El mensaje de bienvenida se mostrará después de cargar el historial
     }
     
-    updateWelcomeMessage(drone) {
-        const codeInfo = config.currentCode ? ` (Código: ${config.currentCode})` : '';
+    updateWelcomeMessage(theme) {
+        const codeInfo = config.currentCode ? ` (Código: ${config.currentCode}` : '';
+        const partidaInfo = config.currentPartidaCode ? `/${config.currentPartidaCode}` : '';
+        const fullCodeInfo = codeInfo + partidaInfo + ')';
+        
         const welcomeMessages = {
-            johnson: `Bienvenido al Sistema de Control del Dron Johnson${codeInfo}`,
-            jackson: `¡Bienvenido al Sistema de Control del Dron Jackson! 🔥${codeInfo}`
+            green: `Bienvenido al Sistema de Control del Dron Johnson${fullCodeInfo}`,
+            red: `¡Bienvenido al Sistema de Control del Dron Johnson! 🔥${fullCodeInfo}`
         };
         
         // Actualizar el primer mensaje de bienvenida
@@ -197,7 +207,7 @@ class Terminal {
         if (firstOutputLine) {
             const commandSpan = firstOutputLine.querySelector('.command');
             if (commandSpan) {
-                commandSpan.textContent = welcomeMessages[drone];
+                commandSpan.textContent = welcomeMessages[theme];
             }
         }
     }
@@ -1037,11 +1047,13 @@ class Terminal {
     showEnvironment() {
         const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
         const codeInfo = config.currentCode ? `  Código: ${config.currentCode}` : '  Código: No especificado';
+        const partidaInfo = config.currentPartidaCode ? `/${config.currentPartidaCode}` : '';
+        const fullCodeInfo = codeInfo + partidaInfo;
         
         const envInfo = [
             '🔧 Configuración del Entorno:',
             `  Dron: ${droneName}`,
-            codeInfo,
+            fullCodeInfo,
             `  Entorno: ${config.isDevelopment ? 'Desarrollo (Local)' : 'Producción'}`,
             `  API URL: ${config.DRONE_API_URL}`,
             `  Init URL: ${config.INIT_API_URL}`,
@@ -1092,11 +1104,15 @@ class Terminal {
             // Preparar datos para enviar a la API
             const requestData = {
                 message: command,
-                drone: config.currentDrone
+                drone: 'johnson' // Siempre usar Johnson
             };
-            // Agregar código si está disponible
+            // Agregar código de partida si está disponible (mantiene compatibilidad)
+            if (config.currentPartidaCode) {
+                requestData.code = config.currentPartidaCode;
+            }
+            // Agregar versión (código de acceso) si está disponible
             if (config.currentCode) {
-                requestData.code = config.currentCode;
+                requestData.version = config.currentCode;
             }
 
             // Usar fetch con timeout de 20 segundos
@@ -1106,7 +1122,7 @@ class Terminal {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestData)
-            }, 60000);
+            }, 20000);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -1116,8 +1132,7 @@ class Terminal {
 
             // Mostrar solo la respuesta del dron
             if (data.message) {
-                const droneName = config.currentDrone === 'jackson' ? 'Jackson' : 'Johnson';
-                this.addOutputLine(`🚁 Dron ${droneName}:`, 'drone-response');
+                this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
                 this.addOutputLine(data.message, 'drone-message');
                 // Mostrar archivos adjuntos si existen
                 if (data.photoUrls && Array.isArray(data.photoUrls) && data.photoUrls.length > 0) {

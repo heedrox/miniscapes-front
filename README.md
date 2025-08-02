@@ -21,13 +21,13 @@ twin-islands-front/
 
 ## 🚀 Características
 
-- **Control de drones**: Soporte para Johnson (verde) y Jackson (rojo)
+- **Control de dron**: Sistema unificado Johnson con dos realidades visuales
 - **Lenguaje natural**: Control mediante instrucciones en español
 - **Validación de acceso**: URLs seguras con códigos únicos
 - **Historial de conversación**: Carga automática de conversaciones previas
 - **Panel de archivos**: Visualización de archivos capturados
 - **Interfaz responsiva**: Funciona en desktop, tablet y móvil
-- **Temas dinámicos**: Colores según el dron activo
+- **Temas dinámicos**: Colores según el código de acceso
 
 ## 📱 Comandos Disponibles
 
@@ -63,26 +63,29 @@ npm start
 El proyecto se abrirá automáticamente en `http://localhost:3000`
 
 ### URLs de Acceso
-- **Johnson**: `http://localhost:3000/johnson/CODIGO/`
-- **Jackson**: `http://localhost:3000/jackson/CODIGO/`
-- **Con parámetros**: `http://localhost:3000/?/dron/CODIGO/`
+- **Realidad Verde (4815)**: `http://localhost:3000/?/4815/codex/`
+- **Realidad Roja (1623)**: `http://localhost:3000/?/1623/codex/`
 
-## 🎨 Temas de Drones
+Donde:
+- `4815` o `1623` es el código de acceso (realidad)
+- `codex` es el código de la partida específica
 
-### Johnson (Verde)
+## 🎨 Temas de Realidades
+
+### Realidad Verde (Código 4815)
 - Prompt y comandos: `#27ca3f`
 - Respuestas del dron: Verde
 - Panel de archivos: Verde
 - Archivos adjuntos: Enlaces verdes
 
-### Jackson (Rojo)
+### Realidad Roja (Código 1623)
 - Prompt y comandos: `#e74c3c`
 - Respuestas del dron: Rojo
 - Panel de archivos: Rojo
 - Archivos adjuntos: Enlaces rojos
 
 ### Configuración
-Los temas están definidos en `web/styles.css` y se aplican automáticamente según el dron detectado en la URL.
+Los temas están definidos en `web/styles.css` y se aplican automáticamente según el código detectado en la URL.
 
 ## 📱 Responsive Design
 
@@ -117,8 +120,8 @@ Asegúrate de configurar las URLs de la API en `web/config.js` para el entorno d
 - **CSS Grid/Flexbox**: Layout moderno y flexible
 - **Google Fonts**: JetBrains Mono para tipografía
 - **Fetch API**: Comunicación con backend LLM
-- **URL Validation**: Detección de dron y código
-- **Dynamic Theming**: Temas según dron activo
+- **URL Validation**: Detección de código de acceso
+- **Dynamic Theming**: Temas según código activo
 
 ## 📄 Licencia
 

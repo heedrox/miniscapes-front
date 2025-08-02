@@ -4,64 +4,52 @@ const config = {
     isDevelopment: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
     isProduction: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
     
-    // Verificar si el acceso es válido (requiere patrón dron/codigo)
+    // Verificar si el acceso es válido (requiere patrón codigo/codigo-partida)
     get isValidAccess() {
         const url = window.location.href;
-        const path = window.location.pathname;
         
-        // Patrón para path: /dron/codigo/
-        const pathPattern = /\/(jackson|johnson)\/([^\/]+)\/?$/;
+        // Patrón para parámetros: ?/codigo/codigo-partida/
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
         
-        // Patrón para parámetros: ?/dron/codigo/
-        const paramPattern = /\?\/(jackson|johnson)\/([^\/\?]+)\/?$/;
-        
-        return pathPattern.test(path) || paramPattern.test(url);
+        return paramPattern.test(url);
     },
     
-    // Detectar dron y código por URL
-    get currentDrone() {
-        const url = window.location.href;
-        const path = window.location.pathname;
-        
-        // Buscar en path primero
-        const pathMatch = path.match(/\/(jackson|johnson)\/([^\/]+)\/?$/);
-        if (pathMatch) {
-            return pathMatch[1];
-        }
-        
-        // Buscar en parámetros
-        const paramMatch = url.match(/\?\/(jackson|johnson)\/([^\/\?]+)\/?$/);
-        if (paramMatch) {
-            return paramMatch[1];
-        }
-        
-        // Fallback: detectar por presencia de jackson
-        return url.includes('jackson') ? 'jackson' : 'johnson';
-    },
-    
-    // Obtener código de la URL
+    // Detectar código de acceso por URL
     get currentCode() {
         const url = window.location.href;
-        const path = window.location.pathname;
         
-        // Buscar patrón en path: /dron/codigo/
-        const pathPattern = /\/(jackson|johnson)\/([^\/]+)\/?$/;
-        const pathMatch = path.match(pathPattern);
-        
-        if (pathMatch) {
-            return pathMatch[2]; // Retorna el código
-        }
-        
-        // Buscar patrón en parámetros: ?/dron/codigo/
-        const paramPattern = /\?\/(jackson|johnson)\/([^\/\?]+)\/?$/;
+        // Buscar patrón en parámetros: ?/codigo/codigo-partida/
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
         const paramMatch = url.match(paramPattern);
         
         if (paramMatch) {
-            return paramMatch[2]; // Retorna el código
+            return paramMatch[1]; // Retorna el código de acceso (4815 o 1623)
         }
         
         // Si no hay código, retornar null
         return null;
+    },
+    
+    // Detectar código de partida por URL
+    get currentPartidaCode() {
+        const url = window.location.href;
+        
+        // Buscar patrón en parámetros: ?/codigo/codigo-partida/
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
+        const paramMatch = url.match(paramPattern);
+        
+        if (paramMatch) {
+            return paramMatch[2]; // Retorna el código de partida
+        }
+        
+        // Si no hay código de partida, retornar null
+        return null;
+    },
+    
+    // Determinar tema visual basado en el código de acceso
+    get currentTheme() {
+        const code = this.currentCode;
+        return code === '1623' ? 'red' : 'green'; // 1623 = rojo, 4815 = verde
     },
     
     // URLs de las APIs
@@ -105,8 +93,9 @@ const config = {
 // Mostrar configuración inicial
 console.log('🚁 Configuración del Sistema de Control del Dron:');
 console.log(`Entorno: ${config.isDevelopment ? 'Desarrollo (Local)' : 'Producción'}`);
-console.log(`Dron: ${config.currentDrone}`);
-console.log(`Código: ${config.currentCode || 'No especificado'}`);
+console.log(`Código de acceso: ${config.currentCode || 'No especificado'}`);
+console.log(`Código de partida: ${config.currentPartidaCode || 'No especificado'}`);
+console.log(`Tema: ${config.currentTheme}`);
 console.log(`API URL: ${config.DRONE_API_URL}`);
 
 export default config; 
