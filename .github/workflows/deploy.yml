@@ -23,3 +23,7 @@ jobs:
         run: firebase deploy --only hosting:miniscapes --non-interactive
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account-key.json
+
+      - name: Clean up credentials
+        if: always()
+        run: rm -f service-account-key.json
