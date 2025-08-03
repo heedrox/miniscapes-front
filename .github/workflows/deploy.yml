@@ -16,7 +16,10 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      - name: Create service account key file
+        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > service-account-key.json
+
       - name: Deploy to Firebase
         run: firebase deploy --only hosting:miniscapes --non-interactive
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account-key.json
