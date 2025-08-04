@@ -421,7 +421,11 @@ class Terminal {
     addOutputLine(content, className = 'text') {
         const line = document.createElement('div');
         line.className = `output-line ${className}`;
-        line.innerHTML = content;
+        
+        // Convertir saltos de línea \n en <br/> para que se muestren en HTML
+        const formattedContent = content.replace(/\n/g, '<br/>');
+        line.innerHTML = formattedContent;
+        
         this.output.appendChild(line);
         
         // Solo hacer auto-scroll si el usuario está en la parte inferior
@@ -1158,7 +1162,8 @@ class Terminal {
         // Crear enlaces para cada archivo adjunto
         const attachments = photoUrls.map((url, index) => {
             const fileName = this.getFileNameFromUrl(url);
-            return `<a href="${url}" target="_blank" class="attachment-link">${fileName}</a>`;
+            const modifiedUrl = this.getModifiedUrl(url);
+            return `<a href="${modifiedUrl}" target="_blank" class="attachment-link">${fileName}</a>`;
         }).join(', ');
         
         // Mostrar línea de archivos adjuntos
@@ -1179,9 +1184,51 @@ class Terminal {
                 return `archivo_${Date.now()}`;
             }
             
-            return fileName;
+            // Obtener el código de realidad actual (4815 o 1623)
+            const realityCode = config.currentCode || '4815';
+            
+            // Reemplazar extensiones de archivo con sufijo -REALIDAD
+            const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip', 'rar', '7z'];
+            
+            let modifiedFileName = fileName;
+            
+            // Buscar y reemplazar cada extensión soportada
+            supportedExtensions.forEach(ext => {
+                const regex = new RegExp(`\\.${ext}$`, 'i');
+                if (regex.test(modifiedFileName)) {
+                    modifiedFileName = modifiedFileName.replace(regex, `-${realityCode}.${ext}`);
+                    return; // Salir del forEach una vez que se encuentre una extensión
+                }
+            });
+            
+            return modifiedFileName;
         } catch (error) {
             return `archivo_${Date.now()}`;
+        }
+    }
+
+    getModifiedUrl(url) {
+        try {
+            // Obtener el código de realidad actual (4815 o 1623)
+            const realityCode = config.currentCode || '4815';
+            
+            // Reemplazar extensiones de archivo con sufijo -REALIDAD en la URL
+            const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip', 'rar', '7z'];
+            
+            let modifiedUrl = url;
+            
+            // Buscar y reemplazar cada extensión soportada
+            supportedExtensions.forEach(ext => {
+                const regex = new RegExp(`\\.${ext}$`, 'i');
+                if (regex.test(modifiedUrl)) {
+                    modifiedUrl = modifiedUrl.replace(regex, `-${realityCode}.${ext}`);
+                    return; // Salir del forEach una vez que se encuentre una extensión
+                }
+            });
+            
+            return modifiedUrl;
+        } catch (error) {
+            return url; // Si hay error, devolver la URL original
         }
     }
     
@@ -1198,6 +1245,7 @@ class Terminal {
         
         photoUrls.forEach(url => {
             const fileName = this.getFileNameFromUrl(url);
+            const modifiedUrl = this.getModifiedUrl(url);
             
             // Verificar si el archivo ya existe
             const existingFile = filesContent.querySelector(`[data-url="${url}"]`);
@@ -1217,10 +1265,10 @@ class Terminal {
                 <div class="file-icon">${fileIcon}</div>
                 <div class="file-info">
                     <div class="file-name">${fileName}</div>
-                    <div class="file-url">${url}</div>
+                    <div class="file-url">${modifiedUrl}</div>
                 </div>
                 <div class="file-actions">
-                    <a href="${url}" target="_blank" class="file-download" title="Abrir archivo">
+                    <a href="${modifiedUrl}" target="_blank" class="file-download" title="Abrir archivo">
                         <span>📤</span>
                     </a>
                 </div>
