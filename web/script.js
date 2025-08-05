@@ -496,22 +496,28 @@ class Terminal {
     updateCursorPosition() {
         if (!this.cursor) return;
         
-        // Crear un span temporal para medir el texto
+        // Obtener estilos del input para replicar exactamente su renderizado
+        const inputStyle = window.getComputedStyle(this.input);
+        
+        // Crear un span temporal para medir el texto con los mismos estilos que el input
         const tempSpan = document.createElement('span');
         tempSpan.style.cssText = `
             position: absolute;
             visibility: hidden;
             white-space: pre;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: #ffffff;
+            font-family: ${inputStyle.fontFamily};
+            font-size: ${inputStyle.fontSize};
+            font-weight: ${inputStyle.fontWeight};
+            letter-spacing: ${inputStyle.letterSpacing};
+            word-spacing: ${inputStyle.wordSpacing};
+            line-height: ${inputStyle.lineHeight};
         `;
         tempSpan.textContent = this.input.value.substring(0, this.input.selectionStart);
         
         // Agregar temporalmente al DOM para medir
-        this.input.parentNode.appendChild(tempSpan);
-        const textWidth = tempSpan.offsetWidth;
-        this.input.parentNode.removeChild(tempSpan);
+        document.body.appendChild(tempSpan);
+        const textWidth = tempSpan.getBoundingClientRect().width;
+        document.body.removeChild(tempSpan);
         
         // Obtener la posición del input
         const inputRect = this.input.getBoundingClientRect();
@@ -520,17 +526,19 @@ class Terminal {
         // Calcular la posición relativa al padre
         const relativeLeft = inputRect.left - parentRect.left;
         
-        // Posicionar el cursor
-        this.cursor.style.left = (relativeLeft + textWidth) + 'px';
+        // Obtener el padding izquierdo del input
+        const inputPaddingLeft = parseFloat(inputStyle.paddingLeft) || 0;
+        
+        // Posicionar el cursor: posición del input + padding izquierdo + ancho del texto
+        this.cursor.style.left = (relativeLeft + inputPaddingLeft + textWidth) + 'px';
         
         // Alinear verticalmente con el texto del input
-        const inputStyle = window.getComputedStyle(this.input);
         const inputLineHeight = parseFloat(inputStyle.lineHeight);
-        const inputPaddingTop = parseFloat(inputStyle.paddingTop);
-        const inputPaddingBottom = parseFloat(inputStyle.paddingBottom);
+        const inputPaddingTop = parseFloat(inputStyle.paddingTop) || 0;
         
         // Calcular la posición vertical para alinear con la línea base del texto
-        const textBaselineOffset = (inputLineHeight - 14) / 2; // 14px es el font-size
+        const fontSize = parseFloat(inputStyle.fontSize);
+        const textBaselineOffset = (inputLineHeight - fontSize) / 2;
         this.cursor.style.top = (inputPaddingTop + textBaselineOffset) + 'px';
         
         // Debug: mostrar información en consola (opcional)
