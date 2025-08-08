@@ -59,6 +59,9 @@ class Terminal {
         // Actualizar posición del cursor cuando se redimensiona la ventana
         window.addEventListener('resize', () => this.updateCursorPosition());
         
+        // Inicializar botón de reset
+        this.initResetButton();
+        
         // Cargar historial inicial
         this.loadInitialHistory();
     }
@@ -1349,6 +1352,73 @@ class Terminal {
     hideInputSpinner() {
         const spinner = document.getElementById('terminalInputSpinner');
         if (spinner) spinner.remove();
+    }
+
+    initResetButton() {
+        const resetButton = document.getElementById('resetButton');
+        if (resetButton) {
+            // Solo mostrar el botón si la URL contiene "admin"
+            const url = window.location.href;
+            if (url.includes('admin')) {
+                resetButton.style.display = 'flex';
+                resetButton.addEventListener('click', () => this.performReset());
+            } else {
+                resetButton.style.display = 'none';
+            }
+        }
+    }
+
+    async performReset() {
+        try {
+            // Mostrar confirmación
+            const confirmed = confirm('¿Estás seguro de que quieres resetear el juego? Esto eliminará todas las conversaciones y archivos.');
+            
+            if (!confirmed) {
+                return;
+            }
+
+            // Mostrar mensaje de reset
+            this.addOutputLine('🔄 Iniciando reset del sistema...', 'text');
+            
+            // Construir URL del endpoint de reset
+            const resetUrl = `${config.DRONE_API_URL.replace('/multiscapes', '/multiscapesReset')}`;
+            
+            // Llamar al endpoint de reset con el código en el body
+            const response = await fetch(resetUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    code: config.currentPartidaCode || 'test-game'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en reset: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // Mostrar resultado
+            this.addOutputLine('✅ Reset completado exitosamente', 'success');
+            this.addOutputLine('Sistema reiniciado. Todas las conversaciones han sido eliminadas.', 'text');
+            
+            // Limpiar panel de archivos
+            this.clearFilesPanel();
+            
+            // Limpiar historial de comandos
+            this.commandHistory = [];
+            this.historyIndex = -1;
+            
+            // Mostrar mensaje de bienvenida
+            this.addOutputLine('', 'text');
+            this.updateWelcomeMessage(config.currentTheme);
+            
+        } catch (error) {
+            console.error('Error durante el reset:', error);
+            this.addOutputLine('❌ Error durante el reset: ' + error.message, 'error');
+        }
     }
 }
 

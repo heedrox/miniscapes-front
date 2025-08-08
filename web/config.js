@@ -8,8 +8,8 @@ const config = {
     get isValidAccess() {
         const url = window.location.href;
         
-        // Patrón para parámetros: ?/codigo/codigo-partida/
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
+        // Patrón para parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
         
         return paramPattern.test(url);
     },
@@ -18,8 +18,8 @@ const config = {
     get currentCode() {
         const url = window.location.href;
         
-        // Buscar patrón en parámetros: ?/codigo/codigo-partida/
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
+        // Buscar patrón en parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
         const paramMatch = url.match(paramPattern);
         
         if (paramMatch) {
@@ -34,8 +34,8 @@ const config = {
     get currentPartidaCode() {
         const url = window.location.href;
         
-        // Buscar patrón en parámetros: ?/codigo/codigo-partida/
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)\/?$/;
+        // Buscar patrón en parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
+        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
         const paramMatch = url.match(paramPattern);
         
         if (paramMatch) {
