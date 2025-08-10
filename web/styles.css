@@ -37,6 +37,48 @@ body {
     z-index: 2;
 }
 
+/* Barra de estado del dron */
+.drone-status-bar {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    min-height: 32px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-icon {
+    font-size: 14px;
+}
+
+.status-label {
+    color: #888;
+    font-weight: 600;
+}
+
+.status-value {
+    color: #27ca3f;
+    font-weight: 600;
+    background: rgba(39, 202, 63, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(39, 202, 63, 0.3);
+}
+
+/* Estilo para el tema rojo (Jackson) */
+.drone-jackson .status-value {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
 .terminal-buttons {
     display: flex;
     gap: 8px;
@@ -313,6 +355,16 @@ body {
     border-radius: 0 6px 6px 0;
     font-style: italic;
     line-height: 1.4;
+}
+
+.drone-location {
+    color: #6a9dc1;
+    font-style: italic;
+    padding: 4px 8px;
+    margin: 2px 0;
+    border-left: 2px solid #6a9dc1;
+    background: rgba(106, 157, 193, 0.1);
+    border-radius: 2px;
 }
 
 /* Estilos para Jackson (colores rojos) */

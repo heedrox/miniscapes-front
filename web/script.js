@@ -12,6 +12,9 @@ class Terminal {
         this.filesContent = document.getElementById('filesContent');
         this.closePanel = document.getElementById('closePanel');
         
+        // Elemento para mostrar ubicación actual
+        this.currentRoomDisplay = document.getElementById('currentRoomDisplay');
+        
         // Verificar acceso válido antes de configurar
         if (!config.isValidAccess) {
             this.showAccessError();
@@ -97,6 +100,11 @@ class Terminal {
             }
             
             const data = await response.json();
+            
+            // Capturar la ubicación actual si está disponible
+            if (data.currentRoom) {
+                this.updateCurrentRoom(data.currentRoom);
+            }
             
             // Mostrar mensaje de conexión
             this.addOutputLine(`Conectando a dron@johnson...`, 'text');
@@ -218,6 +226,20 @@ class Terminal {
             const commandSpan = firstOutputLine.querySelector('.command');
             if (commandSpan) {
                 commandSpan.textContent = welcomeMessages[theme];
+            }
+        }
+    }
+    
+    updateCurrentRoom(roomName) {
+        // Actualizar la ubicación mostrada en la barra de estado
+        if (this.currentRoomDisplay && roomName) {
+            const previousRoom = this.currentRoomDisplay.textContent;
+            this.currentRoomDisplay.textContent = roomName;
+            
+            // Solo mostrar cambio de ubicación si es diferente a la anterior
+            // y no es el estado inicial de "Conectando..."
+            if (previousRoom !== roomName && previousRoom !== 'Conectando...') {
+                this.addOutputLine(`📍 Dron reubicado en: ${roomName}`, 'drone-location');
             }
         }
     }
@@ -1151,6 +1173,11 @@ class Terminal {
             }
 
             const data = await response.json();
+
+            // Capturar la ubicación actual si está disponible
+            if (data.currentRoom) {
+                this.updateCurrentRoom(data.currentRoom);
+            }
 
             // Mostrar solo la respuesta del dron
             if (data.message) {
