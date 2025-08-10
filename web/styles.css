@@ -7,15 +7,18 @@
 body {
     font-family: 'JetBrains Mono', monospace;
     background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh; /* mobile-friendly dynamic viewport */
     margin: 0;
     padding: 0;
+    padding-top: env(safe-area-inset-top);
     overflow: hidden;
 }
 
 .terminal-container {
     width: 100vw;
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh; /* dynamic viewport to avoid URL bar overlap */
     background: #0c0c0c;
     overflow: hidden;
     display: flex;
@@ -25,10 +28,13 @@ body {
 
 .terminal-header {
     background: #2d2d2d;
-    padding: 10px 15px;
+    padding: calc(10px + env(safe-area-inset-top)) 15px 10px 15px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid #404040;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .terminal-buttons {
@@ -764,4 +770,9 @@ body {
     .tab-text {
         font-size: 10px;
     }
+} 
+
+@supports (height: 100svh) {
+    body { height: 100svh; }
+    .terminal-container { height: 100svh; }
 } 
