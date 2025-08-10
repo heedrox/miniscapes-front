@@ -182,7 +182,11 @@ class Terminal {
         // Actualizar título con códigos
         const titleCode = currentCode ? `/${currentCode}` : '';
         const partidaCode = currentPartidaCode ? `/${currentPartidaCode}` : '';
-        terminalTitle.textContent = `dron@johnson${titleCode}${partidaCode}:~`;
+        // Base title without count; count will be appended in realtime
+        const baseTitle = `dron@johnson${titleCode}${partidaCode}:~`;
+        terminalTitle.dataset.baseTitle = baseTitle;
+        // Render base title with placeholder span for count so we do not overwrite it later
+        terminalTitle.innerHTML = `${baseTitle} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
         
         // Aplicar clase CSS según el tema
         if (currentTheme === 'red') {
@@ -193,6 +197,9 @@ class Terminal {
         }
         
         // El mensaje de bienvenida se mostrará después de cargar el historial
+        
+        // Iniciar suscripción a contador de mensajes si hay código de partida
+        this.initMessageCountSubscription();
     }
     
     updateWelcomeMessage(theme) {
@@ -1423,6 +1430,41 @@ class Terminal {
 }
 
 import config from './config.js';
+import { subscribeToMessageCount } from './firebase.js';
+
+// Helper attached to Terminal prototype to manage subscription
+Terminal.prototype.initMessageCountSubscription = function() {
+    const gameCode = config.currentPartidaCode;
+    const titleElement = document.getElementById('terminalTitle');
+    const countSpan = document.getElementById('messageCount');
+    if (!titleElement) return;
+    
+    if (this._unsubscribeMessageCount) {
+        try { this._unsubscribeMessageCount(); } catch(e) {}
+        this._unsubscribeMessageCount = null;
+    }
+    
+    if (!gameCode) {
+        // Clear count if no game code
+        if (countSpan) countSpan.textContent = '';
+        titleElement.textContent = titleElement.dataset.baseTitle || titleElement.textContent;
+        return;
+    }
+    
+    this._unsubscribeMessageCount = subscribeToMessageCount(gameCode, (count) => {
+        const base = titleElement.dataset.baseTitle || titleElement.textContent;
+        // Ensure base title with span is rendered
+        if (!document.getElementById('messageCount')) {
+            titleElement.innerHTML = `${base} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
+        }
+        const liveCountSpan = document.getElementById('messageCount');
+        if (liveCountSpan) {
+            liveCountSpan.textContent = typeof count === 'number' ? ` [${count}]` : '';
+        } else {
+            titleElement.textContent = base + (typeof count === 'number' ? ` [${count}]` : '');
+        }
+    });
+};
 
 // Inicializar terminal cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
