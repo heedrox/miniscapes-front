@@ -14,6 +14,7 @@ const firebaseConfig = {
   measurementId: "G-KJ2VGH8RL2"
 };
 
+
 // Ensure single app instance
 let appInstance;
 try {
