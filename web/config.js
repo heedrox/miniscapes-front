@@ -90,12 +90,6 @@ const config = {
     }
 };
 
-// Mostrar configuración inicial
-console.log('🚁 Configuración del Sistema de Control del Dron:');
-console.log(`Entorno: ${config.isDevelopment ? 'Desarrollo (Local)' : 'Producción'}`);
-console.log(`Código de acceso: ${config.currentCode || 'No especificado'}`);
-console.log(`Código de partida: ${config.currentPartidaCode || 'No especificado'}`);
-console.log(`Tema: ${config.currentTheme}`);
-console.log(`API URL: ${config.DRONE_API_URL}`);
+// Configuración inicial silenciosa para producción
 
 export default config; 

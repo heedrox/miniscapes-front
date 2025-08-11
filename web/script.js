@@ -339,6 +339,7 @@ class Terminal {
             case 'toggle':
                 this.toggleEnvironment();
                 break;
+
             default:
                 // Cualquier otro comando se trata como instrucción para el LLM
                 await this.processLLMCommand(command);
@@ -359,6 +360,7 @@ class Terminal {
             '  local       - Cambia a entorno local',
             '  production  - Cambia a entorno de producción',
             '  toggle      - Alterna entre entornos',
+
             '',
             '💬 Control por LLM:',
             '  Escribe instrucciones naturales como:',
@@ -1133,6 +1135,8 @@ class Terminal {
         this.addOutputLine(`📡 API URL: ${config.DRONE_API_URL}`, 'text');
     }
     
+
+    
     // Fetch con timeout
     async fetchWithTimeout(resource, options = {}, timeout = 20000) {
         return Promise.race([
@@ -1460,14 +1464,23 @@ import config from './config.js';
 import { subscribeToMessageCount } from './firebase.js';
 
 // Helper attached to Terminal prototype to manage subscription
-Terminal.prototype.initMessageCountSubscription = function() {
+Terminal.prototype.initMessageCountSubscription = async function() {
     const gameCode = config.currentPartidaCode;
     const titleElement = document.getElementById('terminalTitle');
     const countSpan = document.getElementById('messageCount');
-    if (!titleElement) return;
     
+    if (!titleElement) {
+        console.warn('⚠️ Elemento terminalTitle no encontrado');
+        return;
+    }
+    
+    // Limpiar suscripción anterior si existe
     if (this._unsubscribeMessageCount) {
-        try { this._unsubscribeMessageCount(); } catch(e) {}
+        try { 
+            this._unsubscribeMessageCount(); 
+        } catch(e) {
+            // Error silencioso al cancelar suscripción
+        }
         this._unsubscribeMessageCount = null;
     }
     
@@ -1478,19 +1491,31 @@ Terminal.prototype.initMessageCountSubscription = function() {
         return;
     }
     
-    this._unsubscribeMessageCount = subscribeToMessageCount(gameCode, (count) => {
-        const base = titleElement.dataset.baseTitle || titleElement.textContent;
-        // Ensure base title with span is rendered
-        if (!document.getElementById('messageCount')) {
-            titleElement.innerHTML = `${base} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
-        }
-        const liveCountSpan = document.getElementById('messageCount');
-        if (liveCountSpan) {
-            liveCountSpan.textContent = typeof count === 'number' ? ` [${count}]` : '';
-        } else {
-            titleElement.textContent = base + (typeof count === 'number' ? ` [${count}]` : '');
-        }
-    });
+    try {
+        // Crear suscripción directamente
+        this._unsubscribeMessageCount = subscribeToMessageCount(gameCode, (count) => {
+            try {
+                const base = titleElement.dataset.baseTitle || titleElement.textContent;
+                
+                // Ensure base title with span is rendered
+                if (!document.getElementById('messageCount')) {
+                    titleElement.innerHTML = `${base} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
+                }
+                
+                const liveCountSpan = document.getElementById('messageCount');
+                if (liveCountSpan) {
+                    liveCountSpan.textContent = typeof count === 'number' ? ` [${count}]` : '';
+                } else {
+                    titleElement.textContent = base + (typeof count === 'number' ? ` [${count}]` : '');
+                }
+            } catch (error) {
+                // Error silencioso al actualizar contador
+            }
+        });
+        
+    } catch (error) {
+        // Error silencioso al inicializar suscripción
+    }
 };
 
 // Inicializar terminal cuando se carga la página
