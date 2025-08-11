@@ -827,4 +827,19 @@ body {
 @supports (height: 100svh) {
     body { height: 100svh; }
     .terminal-container { height: 100svh; }
+}
+
+/* Barra de progreso del timeout en el input - VERSION NEON SIN BORDE */
+.terminal-input.timeout-progress-active {
+    background: linear-gradient(90deg, #39ff14 var(--timeout-progress, 0%), rgba(0, 0, 0, 0.25) var(--timeout-progress, 0%)) !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    color: #ffffff !important;
+}
+
+.drone-jackson .terminal-input.timeout-progress-active {
+    background: linear-gradient(90deg, #ff1744 var(--timeout-progress, 0%), rgba(0, 0, 0, 0.25) var(--timeout-progress, 0%)) !important;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat !important;
+    color: #ffffff !important;
 } 

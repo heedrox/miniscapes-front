@@ -71,77 +71,18 @@ class Terminal {
     
     async loadInitialHistory() {
         try {
-            // Construir URL con parámetros para GET
-            const params = new URLSearchParams({
-                drone: 'johnson' // Siempre usar Johnson
-            });
-            
-            // Agregar código de partida si está disponible (mantiene compatibilidad)
-            if (config.currentPartidaCode) {
-                params.append('code', config.currentPartidaCode);
-            }
-            
-            // Agregar versión (código de acceso) si está disponible
-            if (config.currentCode) {
-                params.append('version', config.currentCode);
-            }
-            
-            const url = `${config.INIT_API_URL}?${params.toString()}`;
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Capturar la ubicación actual si está disponible
-            if (data.currentRoom) {
-                this.updateCurrentRoom(data.currentRoom);
-            }
-            
-            // Mostrar mensaje de conexión
+            // Mostrar mensaje de conexión inicial
             this.addOutputLine(`Conectando a dron@johnson...`, 'text');
             this.addOutputLine('', 'text');
             
-            // Mostrar mensajes del historial como si fueran normales
-            if (data.messages && Array.isArray(data.messages)) {
-                data.messages.forEach(messageObj => {
-                    // Extraer el contenido del mensaje según su estructura
-                    if (messageObj.user === 'player') {
-                        // Mensaje del usuario
-                        this.addOutputLine(`$ ${messageObj.message}`, 'command-executed');
-                    } else if (messageObj.user === 'drone') {
-                        // Mensaje del dron
-                        this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
-                        this.addOutputLine(messageObj.message, 'drone-message');
-                        
-                        // Mostrar archivos adjuntos si existen
-                        if (messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0) {
-                            this.showAttachments(messageObj.photoUrls);
-                        }
-                    } else {
-                        // Mensaje genérico (fallback)
-                        this.addOutputLine(messageObj.message || messageObj, 'text');
-                    }
-                });
-            }
-            
-            // Mostrar mensaje de bienvenida después del historial
+            // Mostrar mensaje de bienvenida
             this.updateWelcomeMessage(config.currentTheme);
             
-        } catch (error) {
-            console.error('Error al cargar historial:', error);
-            this.addOutputLine('⚠️ No se pudo cargar el historial de conversación', 'warning');
-            this.addOutputLine('', 'text');
+            // Los mensajes se cargarán automáticamente desde Firebase en tiempo real
+            // a través de la función updateTerminalWithMessages
             
-            // Mostrar mensaje de bienvenida
+        } catch (error) {
+            // Error silencioso - los mensajes se cargarán desde Firebase
             this.updateWelcomeMessage(config.currentTheme);
         }
     }
@@ -1148,61 +1089,105 @@ class Terminal {
     }
 
     async processLLMCommand(command) {
-        try {
-            // Preparar datos para enviar a la API
-            const requestData = {
-                message: command,
-                drone: 'johnson' // Siempre usar Johnson
-            };
-            // Agregar código de partida si está disponible (mantiene compatibilidad)
-            if (config.currentPartidaCode) {
-                requestData.code = config.currentPartidaCode;
-            }
-            // Agregar versión (código de acceso) si está disponible
-            if (config.currentCode) {
-                requestData.version = config.currentCode;
-            }
-
-            // Usar fetch con timeout de 20 segundos
-            const response = await this.fetchWithTimeout(config.DRONE_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData)
-            }, 20000);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // Capturar la ubicación actual si está disponible
-            if (data.currentRoom) {
-                this.updateCurrentRoom(data.currentRoom);
-            }
-
-            // Mostrar solo la respuesta del dron
-            if (data.message) {
-                this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
-                this.addOutputLine(data.message, 'drone-message');
-                // Mostrar archivos adjuntos si existen
-                if (data.photoUrls && Array.isArray(data.photoUrls) && data.photoUrls.length > 0) {
-                    this.showAttachments(data.photoUrls);
+        const maxRetries = 5;
+        let retryCount = 0;
+        
+        const attemptRequest = async () => {
+            try {
+                // Preparar datos para enviar a la API
+                // NOTA: La API solo se usa para enviar comandos, no para recibir respuestas
+                // Las respuestas se reciben en tiempo real desde Firebase
+                const requestData = {
+                    message: command,
+                    drone: 'johnson' // Siempre usar Johnson
+                };
+                // Agregar código de partida si está disponible (mantiene compatibilidad)
+                if (config.currentPartidaCode) {
+                    requestData.code = config.currentPartidaCode;
                 }
-            } else {
-                this.addOutputLine('❌ Error: No se recibió respuesta del dron', 'error');
-            }
+                // Agregar versión (código de acceso) si está disponible
+                if (config.currentCode) {
+                    requestData.version = config.currentCode;
+                }
 
-        } catch (error) {
-            if (error.message === 'timeout') {
-                this.addOutputLine('❌ Tiempo de espera agotado. Intenta de nuevo.', 'error');
-            } else {
-                console.error('Error al llamar a la API:', error);
-                this.addOutputLine('❌ Error de conexión con el dron', 'error');
+                // Mostrar barra de progreso del timeout
+                this.showTimeoutProgressBar();
+                
+                // Usar fetch con timeout de 70 segundos
+                const response = await this.fetchWithTimeout(config.DRONE_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                }, 70000);
+
+                // Ocultar barra de progreso al completar
+                this.hideTimeoutProgressBar();
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // La respuesta de la API se ignora ya que los mensajes se actualizan en tiempo real desde Firebase
+                // Los mensajes y archivos adjuntos aparecerán automáticamente en tiempo real
+                // a través de la suscripción de Firebase
+
+            } catch (error) {
+                // Ocultar barra de progreso en caso de error
+                this.hideTimeoutProgressBar();
+                
+                // Determinar si es un error que se puede reintentar
+                const isRetryableError = 
+                    error.message.includes('500') || 
+                    error.message.includes('502') || 
+                    error.message.includes('503') || 
+                    error.message.includes('504') || 
+                    error.message.includes('ECONNRESET') ||
+                    error.message.includes('ENOTFOUND') ||
+                    error.message.includes('fetch') ||
+                    error.message.includes('network') ||
+                    error.message.includes('Failed to fetch');
+                
+                if (error.message === 'timeout') {
+                    // Timeout - también reintentar
+                    retryCount++;
+                    if (retryCount <= maxRetries) {
+                        this.addOutputLine(`⏰ Tiempo de espera agotado... Reintentando conectar con Dron Johnson (${retryCount}/${maxRetries})`, 'warning');
+                        
+                        // Esperar 2 segundos antes de reintentar
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        return await attemptRequest(); // Reintentar
+                    } else {
+                        this.addOutputLine('❌ Error de conexión persistente con el dron después de 5 intentos', 'error');
+                        return false;
+                    }
+                } else if (isRetryableError) {
+                    // Error reintentable
+                    retryCount++;
+                    if (retryCount <= maxRetries) {
+                        this.addOutputLine(`🔌 Conexión perdida... Reintentando conectar con Dron Johnson (${retryCount}/${maxRetries})`, 'warning');
+                        
+                        // Esperar 2 segundos antes de reintentar
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        return await attemptRequest(); // Reintentar
+                    } else {
+                        this.addOutputLine('❌ Error de conexión persistente con el dron después de 5 intentos', 'error');
+                        return false;
+                    }
+                } else {
+                    // Otros errores HTTP no reintentables
+                    console.error('Error al llamar a la API:', error);
+                    this.addOutputLine(`❌ Error de conexión con el dron: ${error.message}`, 'error');
+                    return false;
+                }
             }
-        }
+        };
+        
+        // Iniciar el primer intento
+        await attemptRequest();
     }
     
     showAttachments(photoUrls) {
@@ -1376,6 +1361,49 @@ class Terminal {
             </div>
         `;
     }
+    
+    // Función para actualizar la terminal con mensajes en tiempo real
+    updateTerminalWithMessages(messages) {
+        if (!messages || !Array.isArray(messages)) return;
+        
+        // Limpiar el output actual
+        this.output.innerHTML = '';
+        
+        // Mostrar mensaje de bienvenida
+        this.updateWelcomeMessage(config.currentTheme);
+        
+        // Mostrar mensaje de conexión
+        this.addOutputLine(`Conectando a dron@johnson...`, 'text');
+        this.addOutputLine('', 'text');
+        
+        // Mostrar mensajes del historial
+        messages.forEach(messageObj => {
+            try {
+                // Extraer el contenido del mensaje según su estructura
+                if (messageObj.user === 'player') {
+                    // Mensaje del usuario
+                    this.addOutputLine(`$ ${messageObj.message}`, 'command-executed');
+                } else if (messageObj.user === 'drone') {
+                    // Mensaje del dron
+                    this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
+                    this.addOutputLine(messageObj.message, 'drone-message');
+                    
+                    // Mostrar archivos adjuntos si existen
+                    if (messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0) {
+                        this.showAttachments(messageObj.photoUrls);
+                    }
+                } else {
+                    // Mensaje genérico (fallback)
+                    this.addOutputLine(messageObj.message || messageObj, 'text');
+                }
+            } catch (error) {
+                // Error silencioso al procesar mensaje individual
+            }
+        });
+        
+        // Scroll al final
+        this.scrollToBottom();
+    }
 
     showInputSpinner() {
         // Evitar duplicados
@@ -1390,6 +1418,45 @@ class Terminal {
     hideInputSpinner() {
         const spinner = document.getElementById('terminalInputSpinner');
         if (spinner) spinner.remove();
+    }
+    
+    showTimeoutProgressBar() {
+        // Aplicar la clase de progreso al input
+        this.input.classList.add('timeout-progress-active');
+        
+        // Iniciar la animación de la barra
+        this.startTimeoutProgressAnimation();
+    }
+    
+    hideTimeoutProgressBar() {
+        // Remover la clase de progreso del input
+        this.input.classList.remove('timeout-progress-active');
+        
+        // Limpiar el intervalo si existe
+        if (this._timeoutProgressInterval) {
+            clearInterval(this._timeoutProgressInterval);
+            this._timeoutProgressInterval = null;
+        }
+    }
+    
+    startTimeoutProgressAnimation() {
+        const totalTime = 70; // segundos
+        const updateInterval = 100; // actualizar cada 100ms para suavidad
+        let elapsedTime = 0;
+        
+        this._timeoutProgressInterval = setInterval(() => {
+            elapsedTime += updateInterval / 1000; // convertir a segundos
+            const progress = (elapsedTime / totalTime) * 100;
+            
+            // Actualizar el CSS custom property para el progreso
+            this.input.style.setProperty('--timeout-progress', `${progress}%`);
+            
+            // Detener cuando se complete
+            if (elapsedTime >= totalTime) {
+                clearInterval(this._timeoutProgressInterval);
+                this._timeoutProgressInterval = null;
+            }
+        }, updateInterval);
     }
 
     initResetButton() {
@@ -1461,7 +1528,7 @@ class Terminal {
 }
 
 import config from './config.js';
-import { subscribeToMessageCount } from './firebase.js';
+import { subscribeToMessageCount, subscribeToGameDocument } from './firebase.js';
 
 // Helper attached to Terminal prototype to manage subscription
 Terminal.prototype.initMessageCountSubscription = async function() {
@@ -1474,7 +1541,7 @@ Terminal.prototype.initMessageCountSubscription = async function() {
         return;
     }
     
-    // Limpiar suscripción anterior si existe
+    // Limpiar suscripciones anteriores si existen
     if (this._unsubscribeMessageCount) {
         try { 
             this._unsubscribeMessageCount(); 
@@ -1482,6 +1549,15 @@ Terminal.prototype.initMessageCountSubscription = async function() {
             // Error silencioso al cancelar suscripción
         }
         this._unsubscribeMessageCount = null;
+    }
+    
+    if (this._unsubscribeGameDocument) {
+        try { 
+            this._unsubscribeGameDocument(); 
+        } catch(e) {
+            // Error silencioso al cancelar suscripción
+        }
+        this._unsubscribeGameDocument = null;
     }
     
     if (!gameCode) {
@@ -1492,26 +1568,42 @@ Terminal.prototype.initMessageCountSubscription = async function() {
     }
     
     try {
-        // Crear suscripción directamente
-        this._unsubscribeMessageCount = subscribeToMessageCount(gameCode, (count) => {
-            try {
-                const base = titleElement.dataset.baseTitle || titleElement.textContent;
-                
-                // Ensure base title with span is rendered
-                if (!document.getElementById('messageCount')) {
-                    titleElement.innerHTML = `${base} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
+        // Crear suscripción con callback para mensajes
+        this._unsubscribeMessageCount = subscribeToMessageCount(
+            gameCode, 
+            // Callback para el contador
+            (count) => {
+                try {
+                    const base = titleElement.dataset.baseTitle || titleElement.textContent;
+                    
+                    // Ensure base title with span is rendered
+                    if (!document.getElementById('messageCount')) {
+                        titleElement.innerHTML = `${base} <span id="messageCount" style="opacity:0.8; font-weight:600;"></span>`;
+                    }
+                    
+                    const liveCountSpan = document.getElementById('messageCount');
+                    if (liveCountSpan) {
+                        liveCountSpan.textContent = typeof count === 'number' ? ` [${count}]` : '';
+                    } else {
+                        titleElement.textContent = base + (typeof count === 'number' ? ` [${count}]` : '');
+                    }
+                } catch (error) {
+                    // Error silencioso al actualizar contador
                 }
-                
-                const liveCountSpan = document.getElementById('messageCount');
-                if (liveCountSpan) {
-                    liveCountSpan.textContent = typeof count === 'number' ? ` [${count}]` : '';
-                } else {
-                    titleElement.textContent = base + (typeof count === 'number' ? ` [${count}]` : '');
-                }
-            } catch (error) {
-                // Error silencioso al actualizar contador
+            },
+            // Callback para los mensajes
+            (messages) => {
+                this.updateTerminalWithMessages(messages);
             }
-        });
+        );
+        
+        // Crear suscripción para actualizaciones de ubicación
+        this._unsubscribeGameDocument = subscribeToGameDocument(
+            gameCode,
+            (roomTitle) => {
+                this.updateCurrentRoom(roomTitle);
+            }
+        );
         
     } catch (error) {
         // Error silencioso al inicializar suscripción

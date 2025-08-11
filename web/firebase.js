@@ -1,6 +1,6 @@
 // Firebase initialization and Firestore realtime utilities
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
-import { getFirestore, collection, onSnapshot, query, orderBy, limit, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+import { getFirestore, collection, onSnapshot, query, orderBy, limit, connectFirestoreEmulator, doc } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -40,8 +40,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
   }
 }
 
-// Subscribe to realtime message count for a given game code
-export function subscribeToMessageCount(gameCode, onCountChange) {
+// Subscribe to realtime message count and messages for a given game code
+export function subscribeToMessageCount(gameCode, onCountChange, onMessagesChange) {
   if (!gameCode || typeof onCountChange !== 'function') {
     return () => {};
   }
@@ -50,14 +50,64 @@ export function subscribeToMessageCount(gameCode, onCountChange) {
     // Construir la ruta de la colección
     const messagesRef = collection(db, 'twin-islands', gameCode, 'messages');
     
-    // Crear query simple para evitar problemas con ordenamiento
-    const messagesQuery = query(messagesRef);
+    // Crear query ordenado por timestamp para obtener mensajes en orden cronológico
+    const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
     
     const unsubscribe = onSnapshot(
       messagesQuery,
       (snapshot) => {
         try {
+          // Llamar al callback del contador
           onCountChange(snapshot.size);
+          
+          // Si hay callback para mensajes, procesar y enviar los datos
+          if (onMessagesChange && typeof onMessagesChange === 'function') {
+            const messages = [];
+            snapshot.forEach((doc) => {
+              messages.push({
+                id: doc.id,
+                ...doc.data()
+              });
+            });
+            onMessagesChange(messages);
+          }
+        } catch (callbackError) {
+          // Error silencioso en callback
+        }
+      },
+      (error) => {
+        // Error silencioso en suscripción
+      }
+    );
+    
+    return unsubscribe;
+    
+  } catch (error) {
+    return () => {};
+  }
+}
+
+// Subscribe to game document for current room updates
+export function subscribeToGameDocument(gameCode, onRoomChange) {
+  if (!gameCode || typeof onRoomChange !== 'function') {
+    return () => {};
+  }
+
+  try {
+    // Construir la ruta del documento principal de la partida
+    const gameDocRef = doc(db, 'twin-islands', gameCode);
+    
+    const unsubscribe = onSnapshot(
+      gameDocRef,
+      (docSnapshot) => {
+        try {
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            // Llamar al callback con el título de la habitación actual
+            if (data.currentRoomTitle) {
+              onRoomChange(data.currentRoomTitle);
+            }
+          }
         } catch (callbackError) {
           // Error silencioso en callback
         }
