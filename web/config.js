@@ -9,7 +9,7 @@ const config = {
         const url = window.location.href;
         
         // Patrón para parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
+        const paramPattern = /\?\/(4815|1623|00F0)\/([^\/\?]+)/i;
         
         return paramPattern.test(url);
     },
@@ -19,11 +19,11 @@ const config = {
         const url = window.location.href;
         
         // Buscar patrón en parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
+        const paramPattern = /\?\/(4815|1623|00F0)\/([^\/\?]+)/i;
         const paramMatch = url.match(paramPattern);
         
         if (paramMatch) {
-            return paramMatch[1]; // Retorna el código de acceso (4815 o 1623)
+            return paramMatch[1]; // Retorna el código de acceso (4815, 1623 o 00F0)
         }
         
         // Si no hay código, retornar null
@@ -35,7 +35,7 @@ const config = {
         const url = window.location.href;
         
         // Buscar patrón en parámetros: ?/codigo/codigo-partida (con o sin texto adicional)
-        const paramPattern = /\?\/(4815|1623)\/([^\/\?]+)/;
+        const paramPattern = /\?\/(4815|1623|00F0)\/([^\/\?]+)/i;
         const paramMatch = url.match(paramPattern);
         
         if (paramMatch) {
@@ -49,7 +49,9 @@ const config = {
     // Determinar tema visual basado en el código de acceso
     get currentTheme() {
         const code = this.currentCode;
-        return code === '1623' ? 'red' : 'green'; // 1623 = rojo, 4815 = verde
+        if (code === '1623') return 'red';
+        if (code === '00F0') return 'blue';
+        return 'green'; // 4815 = verde por defecto
     },
     
     // URLs de las APIs
