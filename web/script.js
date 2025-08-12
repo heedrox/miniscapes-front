@@ -1506,6 +1506,12 @@ class Terminal {
                         this.showAttachments(messageObj.photoUrls);
                     } else {
                         this.addOutputLine(messageObj.message, 'drone-message');
+                        if (
+                            config.currentTheme === 'blue' &&
+                            messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0
+                        ) {
+                            this.addOutputLine('📎 Foto enviada', 'attachments');
+                        }
                     }
                 } else {
                     // Mensaje genérico (fallback)
