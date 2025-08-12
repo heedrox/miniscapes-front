@@ -763,17 +763,30 @@ body {
 /* Estilos de progreso de timeout en input */
 .terminal-input.timeout-progress-active {
     --timeout-progress: 0%;
-    background: linear-gradient(90deg, rgba(39, 202, 63, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
+    background: linear-gradient(90deg, rgba(39, 202, 63, 0.8) var(--timeout-progress), transparent var(--timeout-progress));
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(39, 202, 63, 0.8);
+    box-shadow: 0 0 20px rgba(39, 202, 63, 0.5);
+    border-color: #27ca3f;
+    transition: all 0.3s ease;
 }
 
 /* Variante roja */
 .drone-jackson .terminal-input.timeout-progress-active {
-    background: linear-gradient(90deg, rgba(231, 76, 60, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
+    background: linear-gradient(90deg, rgba(231, 76, 60, 0.8) var(--timeout-progress), transparent var(--timeout-progress));
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+    border-color: #e74c3c;
 }
 
 /* Variante azul */
 .drone-jameson .terminal-input.timeout-progress-active {
-    background: linear-gradient(90deg, rgba(74, 163, 255, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
+    background: linear-gradient(90deg, rgba(74, 163, 255, 0.8) var(--timeout-progress), transparent var(--timeout-progress));
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(74, 163, 255, 0.8);
+    box-shadow: 0 0 20px rgba(74, 163, 255, 0.5);
+    border-color: #4aa3ff;
 } 
 
 /* Solapa para abrir el panel */
