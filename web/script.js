@@ -141,6 +141,9 @@ class Terminal {
         if (currentTheme === 'red') {
             document.body.classList.add('drone-jackson');
             console.log('🚁 Realidad Roja activada - Código 1623');
+        } else if (currentTheme === 'blue') {
+            document.body.classList.add('drone-jameson');
+            console.log('🚁 Realidad Azul activada - Código 00F0 (jameson)');
         } else {
             console.log('🚁 Realidad Verde activada - Código 4815');
         }
@@ -158,7 +161,8 @@ class Terminal {
         
         const welcomeMessages = {
             green: `Bienvenido al Sistema de Control del Dron Johnson${fullCodeInfo}`,
-            red: `¡Bienvenido al Sistema de Control del Dron Johnson! 🔥${fullCodeInfo}`
+            red: `¡Bienvenido al Sistema de Control del Dron Johnson! 🔥${fullCodeInfo}`,
+            blue: `Bienvenido al Sistema de Control del Dron Johnson 🧿${fullCodeInfo}`
         };
         
         // Actualizar el primer mensaje de bienvenida
@@ -419,7 +423,17 @@ class Terminal {
         const formattedContent = content.replace(/\n/g, '<br/>');
         messageContent.innerHTML = formattedContent;
         
-                // Crear el thumbnail de la foto o video (usar el primer archivo)
+        // En la realidad azul (00F0, jameson), no se muestran miniaturas ni media
+        if (config.currentTheme === 'blue') {
+            line.appendChild(messageContent);
+            this.output.appendChild(line);
+            if (this.autoScroll) {
+                this.scrollToBottom();
+            }
+            return;
+        }
+        
+        // Crear el thumbnail de la foto o video (usar el primer archivo)
         if (photoUrls && photoUrls.length > 0) {
             const photoThumbnail = document.createElement('div');
             photoThumbnail.className = 'photo-thumbnail';
@@ -929,11 +943,17 @@ class Terminal {
     
     // Métodos para el panel de archivos
     initFilesPanel() {
-        // Event listeners para el panel
+        // En la realidad azul (00F0, jameson), ocultar totalmente el panel y la pestaña
+        if (config.currentTheme === 'blue') {
+            if (this.filesTab) this.filesTab.style.display = 'none';
+            if (this.filesPanel) this.filesPanel.style.display = 'none';
+            return;
+        }
+        
         this.filesTab.addEventListener('click', () => this.toggleFilesPanel());
         this.closePanel.addEventListener('click', () => this.closeFilesPanel());
         
-        // Cerrar panel con ESC
+        // Cerrar con ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.filesPanel.classList.contains('open')) {
                 this.closeFilesPanel();
@@ -945,7 +965,6 @@ class Terminal {
     }
     
     addExampleFiles() {
-        // Limpiar contenido inicial
         this.filesContent.innerHTML = '';
         
         // Agregar archivos de ejemplo
@@ -957,6 +976,11 @@ class Terminal {
     }
     
     toggleFilesPanel() {
+        // En la realidad azul (00F0, jameson), no permitir abrir el panel
+        if (config.currentTheme === 'blue') {
+            return;
+        }
+        
         if (this.filesPanel.classList.contains('open')) {
             this.closeFilesPanel();
         } else {
@@ -989,7 +1013,6 @@ class Terminal {
             </div>
         `;
         
-        // Agregar al panel
         this.filesContent.appendChild(fileElement);
         
         // Remover mensaje de "no hay archivos" si existe
@@ -1002,10 +1025,10 @@ class Terminal {
     getIconByType(type) {
         switch (type) {
             case 'image': return '🖼️';
-            case 'audio': return '🎵';
             case 'video': return '🎬';
+            case 'audio': return '🎵';
             case 'document': return '📄';
-            default: return '📁';
+            default: return '📎';
         }
     }
     
@@ -1270,6 +1293,11 @@ class Terminal {
     showAttachments(photoUrls) {
         if (!photoUrls || photoUrls.length === 0) return;
         
+        // En la realidad azul (00F0, jameson), no mostrar línea de adjuntos ni agregar al panel
+        if (config.currentTheme === 'blue') {
+            return;
+        }
+        
         // Crear enlaces para cada archivo adjunto
         const attachments = photoUrls.map((url, index) => {
             const fileName = this.getFileNameFromUrl(url);
@@ -1295,7 +1323,7 @@ class Terminal {
                 return `archivo_${Date.now()}`;
             }
             
-            // Obtener el código de realidad actual (4815 o 1623)
+            // Obtener el código de realidad actual (4815, 1623 o 00F0)
             const realityCode = config.currentCode || '4815';
             
             // Reemplazar extensiones de archivo con sufijo -REALIDAD
@@ -1320,7 +1348,7 @@ class Terminal {
 
     getModifiedUrl(url) {
         try {
-            // Obtener el código de realidad actual (4815 o 1623)
+            // Obtener el código de realidad actual (4815, 1623 o 00F0)
             const realityCode = config.currentCode || '4815';
             
             // Reemplazar extensiones de archivo con sufijo -REALIDAD en la URL
@@ -1345,6 +1373,11 @@ class Terminal {
     
     addFilesToPanel(photoUrls) {
         if (!photoUrls || photoUrls.length === 0) return;
+        
+        // En la realidad azul (00F0, jameson), no agregar archivos al panel
+        if (config.currentTheme === 'blue') {
+            return;
+        }
         
         const filesContent = document.getElementById('filesContent');
         const noFilesDiv = filesContent.querySelector('.no-files');
@@ -1464,8 +1497,11 @@ class Terminal {
                     // Mensaje del dron
                     this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
                     
-                    // Si hay fotos, mostrar el mensaje con thumbnail
-                    if (messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0) {
+                    // Si hay fotos, mostrar el mensaje con thumbnail (excepto en realidad azul)
+                    if (
+                        config.currentTheme !== 'blue' &&
+                        messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0
+                    ) {
                         this.addOutputLineWithPhoto(messageObj.message, messageObj.photoUrls);
                         this.showAttachments(messageObj.photoUrls);
                     } else {

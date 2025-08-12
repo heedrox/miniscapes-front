@@ -79,6 +79,13 @@ body {
     border-color: rgba(231, 76, 60, 0.3);
 }
 
+/* Estilo para el tema azul (Jameson) */
+.drone-jameson .status-value {
+    color: #4aa3ff;
+    background: rgba(74, 163, 255, 0.1);
+    border-color: rgba(74, 163, 255, 0.3);
+}
+
 .terminal-buttons {
     display: flex;
     gap: 8px;
@@ -213,6 +220,11 @@ body {
     margin-right: 10px;
 }
 
+/* Prompt azul en Jameson */
+.drone-jameson .prompt {
+    color: #4aa3ff;
+}
+
 .command {
     color: #ffffff;
     font-weight: 500;
@@ -277,44 +289,6 @@ body {
     .terminal-input {
         font-size: 13px;
     }
-    
-    .terminal-title {
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .terminal-output {
-        font-size: 12px;
-        padding: 10px 10px 0 10px;
-        padding-right: 25px;
-    }
-    
-    .terminal-input-line {
-        padding: 10px;
-        min-height: 45px;
-    }
-    
-    .terminal-input {
-        font-size: 12px;
-    }
-    
-    .terminal-header {
-        padding: 8px 12px;
-    }
-    
-    .button {
-        width: 10px;
-        height: 10px;
-    }
-}
-
-/* Animación de cursor personalizado */
-.custom-cursor {
-    animation: blink 1s infinite;
-    line-height: 1.5;
-    vertical-align: baseline;
-    display: inline-block;
 }
 
 @keyframes blink {
@@ -346,6 +320,11 @@ body {
     margin-top: 8px;
 }
 
+/* Respuesta azul en Jameson */
+.drone-jameson .drone-response {
+    color: #4aa3ff;
+}
+
 .drone-message {
     color: #ffffff;
     background: linear-gradient(135deg, rgba(39, 202, 63, 0.1), rgba(31, 157, 46, 0.1));
@@ -355,6 +334,12 @@ body {
     border-radius: 0 6px 6px 0;
     font-style: italic;
     line-height: 1.4;
+}
+
+/* Mensaje azul en Jameson */
+.drone-jameson .drone-message {
+    background: linear-gradient(135deg, rgba(74, 163, 255, 0.1), rgba(40, 120, 200, 0.1));
+    border-left: 3px solid #4aa3ff;
 }
 
 /* Estilos para mensajes del dron con foto */
@@ -371,6 +356,12 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     gap: 12px;
+}
+
+/* Mensaje con foto (estilo base); en Jameson igual pero no se muestran fotos por JS */
+.drone-jameson .drone-message-with-photo {
+    background: linear-gradient(135deg, rgba(74, 163, 255, 0.1), rgba(40, 120, 200, 0.1));
+    border-left: 3px solid #4aa3ff;
 }
 
 .message-content {
@@ -393,6 +384,8 @@ body {
     border-color: rgba(39, 202, 63, 0.6);
     transform: scale(1.05);
 }
+
+/* Thumbnails no se muestran en Jameson por JS, pero dejamos estilos neutrales */
 
 .thumbnail-image {
     width: 100%;
@@ -501,13 +494,13 @@ body {
     text-decoration: underline;
 }
 
-/* Estilos para Jackson (archivos adjuntos rojos) */
-.drone-jackson .attachment-link {
-    color: #e74c3c;
+/* En Jameson no se muestran adjuntos por JS, pero definimos color base si hiciera falta */
+.drone-jameson .attachment-link {
+    color: #4aa3ff;
 }
 
-.drone-jackson .attachment-link:hover {
-    color: #c0392b;
+.drone-jameson .attachment-link:hover {
+    color: #2b7ad6;
 }
 
 /* Estilos para elementos de archivo en el panel */
@@ -581,6 +574,12 @@ body {
 .drone-jackson .file-download:hover {
     background-color: rgba(231, 76, 60, 0.1);
     color: #c0392b;
+}
+
+/* En Jameson ocultamos todo el UI de archivos */
+.drone-jameson .files-tab,
+.drone-jameson .files-panel {
+    display: none !important;
 }
 
 .drone-jackson .files-tab {
@@ -678,8 +677,9 @@ body {
     animation: spinInput 0.8s linear infinite;
 }
 
-.drone-jackson .terminal-input-spinner {
-    border: 2px solid #e74c3c;
+/* Spinner azul en Jameson */
+.drone-jameson .terminal-input-spinner {
+    border: 2px solid #4aa3ff;
     border-top: 2px solid transparent;
 }
 
@@ -760,111 +760,21 @@ body {
     font-size: 14px;
 }
 
-/* Elementos de archivo */
-.file-item {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(135deg, #2a2a2a, #333333);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 12px;
-    border: 1px solid #404040;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
+/* Estilos de progreso de timeout en input */
+.terminal-input.timeout-progress-active {
+    --timeout-progress: 0%;
+    background: linear-gradient(90deg, rgba(39, 202, 63, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
 }
 
-.file-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, #27ca3f, #1f9d2e);
-    border-radius: 2px 0 0 2px;
+/* Variante roja */
+.drone-jackson .terminal-input.timeout-progress-active {
+    background: linear-gradient(90deg, rgba(231, 76, 60, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
 }
 
-.file-item:hover {
-    background: linear-gradient(135deg, #333333, #404040);
-    border-color: #27ca3f;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.file-icon {
-    font-size: 28px;
-    margin-right: 18px;
-    width: 40px;
-    text-align: center;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.file-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.file-name {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.file-type {
-    color: #888888;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-}
-
-.file-description {
-    color: #aaaaaa;
-    font-size: 13px;
-    margin-top: 4px;
-    font-style: italic;
-}
-
-.file-actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: 15px;
-}
-
-.file-actions button {
-    background: linear-gradient(135deg, #404040, #505050);
-    border: none;
-    color: #cccccc;
-    padding: 12px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    min-width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.file-actions button:hover {
-    background: linear-gradient(135deg, #27ca3f, #2edb4a);
-    color: #ffffff;
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(39, 202, 63, 0.3);
-}
-
-.file-actions button:active {
-    transform: scale(0.95);
-}
+/* Variante azul */
+.drone-jameson .terminal-input.timeout-progress-active {
+    background: linear-gradient(90deg, rgba(74, 163, 255, 0.15) var(--timeout-progress), transparent var(--timeout-progress));
+} 
 
 /* Solapa para abrir el panel */
 .files-tab {
@@ -925,24 +835,4 @@ body {
     .tab-text {
         font-size: 10px;
     }
-} 
-
-@supports (height: 100svh) {
-    body { height: 100svh; }
-    .terminal-container { height: 100svh; }
-}
-
-/* Barra de progreso del timeout en el input - VERSION NEON SIN BORDE */
-.terminal-input.timeout-progress-active {
-    background: linear-gradient(90deg, #39ff14 var(--timeout-progress, 0%), rgba(0, 0, 0, 0.25) var(--timeout-progress, 0%)) !important;
-    background-size: 100% 100% !important;
-    background-repeat: no-repeat !important;
-    color: #ffffff !important;
-}
-
-.drone-jackson .terminal-input.timeout-progress-active {
-    background: linear-gradient(90deg, #ff1744 var(--timeout-progress, 0%), rgba(0, 0, 0, 0.25) var(--timeout-progress, 0%)) !important;
-    background-size: 100% 100% !important;
-    background-repeat: no-repeat !important;
-    color: #ffffff !important;
 } 
