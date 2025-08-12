@@ -409,6 +409,83 @@ class Terminal {
         }
     }
     
+    addOutputLineWithPhoto(content, photoUrls) {
+        const line = document.createElement('div');
+        line.className = 'output-line drone-message-with-photo';
+        
+        // Crear el contenido del mensaje
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        const formattedContent = content.replace(/\n/g, '<br/>');
+        messageContent.innerHTML = formattedContent;
+        
+                // Crear el thumbnail de la foto o video (usar el primer archivo)
+        if (photoUrls && photoUrls.length > 0) {
+            const photoThumbnail = document.createElement('div');
+            photoThumbnail.className = 'photo-thumbnail';
+            
+            const firstFileUrl = this.getModifiedUrl(photoUrls[0]);
+            const fileName = this.getFileNameFromUrl(photoUrls[0]);
+            
+            // Detectar si es un archivo de video
+            const isVideo = this.isVideoFile(fileName);
+            
+            if (isVideo) {
+                // Crear thumbnail de video con icono y símbolo de play
+                const videoThumbnail = document.createElement('div');
+                videoThumbnail.className = 'video-thumbnail';
+                videoThumbnail.innerHTML = `
+                    <div class="video-icon">🎥</div>
+                    <div class="play-button">▶️</div>
+                    <div class="video-filename">${fileName}</div>
+                `;
+                
+                // Agregar evento click para abrir el video
+                videoThumbnail.addEventListener('click', () => {
+                    window.open(firstFileUrl, '_blank');
+                });
+                
+                photoThumbnail.appendChild(videoThumbnail);
+            } else {
+                // Crear imagen thumbnail para archivos de imagen
+                const img = document.createElement('img');
+                img.src = firstFileUrl;
+                img.alt = fileName;
+                img.className = 'thumbnail-image';
+                
+                // Agregar evento click para abrir la imagen
+                img.addEventListener('click', () => {
+                    window.open(firstFileUrl, '_blank');
+                });
+                
+                photoThumbnail.appendChild(img);
+            }
+            
+            // Agregar contenido y thumbnail al line
+            line.appendChild(messageContent);
+            line.appendChild(photoThumbnail);
+        } else {
+            // Si no hay archivos, solo agregar el contenido del mensaje
+            line.appendChild(messageContent);
+        }
+        
+        this.output.appendChild(line);
+        
+        // Solo hacer auto-scroll si el usuario está en la parte inferior
+        if (this.autoScroll) {
+            this.scrollToBottom();
+        }
+    }
+    
+    isVideoFile(fileName) {
+        if (!fileName) return false;
+        
+        const videoExtensions = ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'm4v'];
+        const extension = fileName.split('.').pop()?.toLowerCase();
+        
+        return videoExtensions.includes(extension);
+    }
+    
     navigateHistory(direction) {
         if (this.commandHistory.length === 0) return;
         
@@ -1386,11 +1463,13 @@ class Terminal {
                 } else if (messageObj.user === 'drone') {
                     // Mensaje del dron
                     this.addOutputLine(`🚁 Dron Johnson:`, 'drone-response');
-                    this.addOutputLine(messageObj.message, 'drone-message');
                     
-                    // Mostrar archivos adjuntos si existen
+                    // Si hay fotos, mostrar el mensaje con thumbnail
                     if (messageObj.photoUrls && Array.isArray(messageObj.photoUrls) && messageObj.photoUrls.length > 0) {
+                        this.addOutputLineWithPhoto(messageObj.message, messageObj.photoUrls);
                         this.showAttachments(messageObj.photoUrls);
+                    } else {
+                        this.addOutputLine(messageObj.message, 'drone-message');
                     }
                 } else {
                     // Mensaje genérico (fallback)
