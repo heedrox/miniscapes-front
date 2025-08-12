@@ -1357,7 +1357,7 @@ class Terminal {
         filesContent.innerHTML = `
             <div class="no-files">
                 <p>📁 No hay archivos descargados</p>
-                <p>Usa comandos del dron para capturar contenido</p>
+                <p>Pide al dron que saque fotos para capturar contenido</p>
             </div>
         `;
     }
