@@ -848,4 +848,78 @@ body {
     .tab-text {
         font-size: 10px;
     }
-} 
+}
+
+/* Estilos para los fuegos artificiales */
+@keyframes fireworkExplosion {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.firework {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Efectos adicionales para los fuegos artificiales */
+.firework::before,
+.firework::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: fireworkExplosion 2s ease-out forwards;
+}
+
+.firework::before {
+    animation-delay: 0.1s;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+.firework::after {
+    animation-delay: 0.2s;
+    transform: translate(-50%, -50%) scale(0);
+}
+
+/* Variaciones de colores para los fuegos artificiales */
+.firework:nth-child(3n) {
+    filter: hue-rotate(60deg);
+}
+
+.firework:nth-child(3n+1) {
+    filter: hue-rotate(120deg);
+}
+
+.firework:nth-child(3n+2) {
+    filter: hue-rotate(180deg);
+}
+
+/* Efecto de partículas adicionales */
+.firework::before {
+    box-shadow: 
+        0 0 20px currentColor,
+        0 0 40px currentColor,
+        0 0 60px currentColor;
+}
+
+.firework::after {
+    box-shadow: 
+        0 0 15px currentColor,
+        0 0 30px currentColor,
+        0 0 45px currentColor;
+}

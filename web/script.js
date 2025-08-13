@@ -284,6 +284,9 @@ class Terminal {
             case 'toggle':
                 this.toggleEnvironment();
                 break;
+            case 'gameover':
+                this.fireworksEffect();
+                break;
 
             default:
                 // Cualquier otro comando se trata como instrucción para el LLM
@@ -316,6 +319,10 @@ class Terminal {
             '',
             '🎯 Comandos especiales:',
             '  exit/quit - Salir del sistema',
+            '  gameover  - ¡Celebración de fuegos artificiales!',
+            '',
+            '🎮 Los fuegos artificiales también se activan automáticamente',
+            '   cuando se detecta "gameOver" en la base de datos',
             '',
             '💡 Tip: El dron responde a instrucciones en lenguaje natural'
         ];
@@ -1646,6 +1653,182 @@ class Terminal {
             this.addOutputLine('❌ Error durante el reset: ' + error.message, 'error');
         }
     }
+    
+    fireworksEffect(automatic = false) {
+        if (automatic) {
+            this.addOutputLine('🎆 ¡FUEGOS ARTIFICIALES ACTIVADOS AUTOMÁTICAMENTE! 🎆', 'success');
+            this.addOutputLine('🎮 El juego ha terminado - ¡Es hora de celebrar! 🎮', 'text');
+        } else {
+            this.addOutputLine('🎆 ¡INICIANDO CELEBRACIÓN DE FUEGOS ARTIFICIALES! 🎆', 'success');
+        }
+        this.addOutputLine('', 'text');
+        
+        // Desactivar el input de la terminal
+        this.input.disabled = true;
+        this.input.placeholder = '🎆 ¡CELEBRACIÓN EN CURSO! 🎆';
+        this.input.style.opacity = '0.5';
+        this.input.style.cursor = 'not-allowed';
+        
+        // Ocultar el cursor personalizado
+        if (this.cursor) {
+            this.cursor.style.display = 'none';
+        }
+        
+        // Crear contenedor para los fuegos artificiales
+        const fireworksContainer = document.createElement('div');
+        fireworksContainer.id = 'fireworksContainer';
+        fireworksContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        `;
+        
+        document.body.appendChild(fireworksContainer);
+        
+        // Función para crear un fuego artificial individual
+        const createFirework = () => {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            
+            // Posición aleatoria
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            
+            // Colores aleatorios para los fuegos artificiales
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8800', '#8800ff', '#ff0088', '#88ff00'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            firework.style.cssText = `
+                position: absolute;
+                left: ${x}%;
+                top: ${y}%;
+                width: 4px;
+                height: 4px;
+                background: ${color};
+                border-radius: 50%;
+                box-shadow: 0 0 10px ${color}, 0 0 20px ${color}, 0 0 30px ${color};
+                animation: fireworkExplosion 2s ease-out forwards;
+                transform: scale(0);
+            `;
+            
+            fireworksContainer.appendChild(firework);
+            
+            // Remover el fuego artificial después de la animación
+            setTimeout(() => {
+                if (firework.parentNode) {
+                    firework.parentNode.removeChild(firework);
+                }
+            }, 2000);
+        };
+        
+        // Función para crear múltiples fuegos artificiales
+        const createFireworkBurst = () => {
+            const burstCount = Math.floor(Math.random() * 8) + 5; // 5-12 fuegos por burst
+            for (let i = 0; i < burstCount; i++) {
+                setTimeout(() => createFirework(), i * 100);
+            }
+        };
+        
+        // Crear fuegos artificiales continuamente
+        const fireworksInterval = setInterval(createFireworkBurst, 800);
+        
+        // Crear fuegos individuales aleatorios
+        const randomFireworksInterval = setInterval(() => {
+            if (Math.random() < 0.3) { // 30% de probabilidad
+                createFirework();
+            }
+        }, 400);
+        
+        // Mostrar mensajes de celebración
+        const celebrationMessages = [
+            '🎉 ¡BOOM! ¡POW! ¡KABOOM! 🎉',
+            '✨ ¡Estrellas brillantes en el cielo! ✨',
+            '🌟 ¡Explosiones de colores! 🌟',
+            '🎊 ¡Celebración épica! 🎊',
+            '🔥 ¡Fuego y brillo! 🔥',
+            '💥 ¡Explosiones espectaculares! 💥',
+            '🎇 ¡Luces en el cielo! 🎇',
+            '⭐ ¡Estrellas fugaces! ⭐',
+            '🚀 ¡Cohetes al infinito! 🚀',
+            '🌈 ¡Arcoíris de explosiones! 🌈',
+            '🎭 ¡Espectáculo de luces! 🎭',
+            '🎨 ¡Paleta de colores en el cielo! 🎨',
+            '⚡ ¡Relámpagos de celebración! ⚡',
+            '🌠 ¡Meteoros de alegría! 🌠',
+            '🎪 ¡Circo de fuegos artificiales! 🎪',
+            '🎡 ¡Carrusel de explosiones! 🎡',
+            '🎢 ¡Montaña rusa de luces! 🎢',
+            '🎯 ¡Diana perfecta de colores! 🎯',
+            '🎲 ¡Dados de celebración! 🎲',
+            '🎸 ¡Concierto de explosiones! 🎸',
+            '🎹 ¡Sinfonía de fuegos! 🎹',
+            '🎺 ¡Fanfarria de luces! 🎺',
+            '🥁 ¡Tambores de celebración! 🥁',
+            '🎻 ¡Violín de explosiones! 🎻',
+            '🎤 ¡Karaoke de fuegos! 🎤',
+            '🎬 ¡Película de luces! 🎬',
+            '🎭 ¡Teatro de explosiones! 🎭',
+            '🎨 ¡Galería de colores! 🎨',
+            '🎪 ¡Show de fuegos! 🎪'
+        ];
+        
+        let messageIndex = 0;
+        const messageInterval = setInterval(() => {
+            if (messageIndex < celebrationMessages.length) {
+                this.addOutputLine(celebrationMessages[messageIndex], 'success');
+                messageIndex++;
+            }
+        }, 2000);
+        
+        // Limpiar todo cuando se recargue la página
+        window.addEventListener('beforeunload', () => {
+            clearInterval(fireworksInterval);
+            clearInterval(randomFireworksInterval);
+            clearInterval(messageInterval);
+            if (fireworksContainer.parentNode) {
+                fireworksContainer.parentNode.removeChild(fireworksContainer);
+            }
+        });
+        
+        // También limpiar si se ejecuta clear
+        const originalClear = this.clear.bind(this);
+        this.clear = () => {
+            clearInterval(fireworksInterval);
+            clearInterval(randomFireworksInterval);
+            clearInterval(messageInterval);
+            if (fireworksContainer.parentNode) {
+                fireworksContainer.parentNode.removeChild(fireworksContainer);
+            }
+            
+            // Restaurar el input de la terminal
+            this.input.disabled = false;
+            this.input.placeholder = 'Escribe un comando o instrucción...';
+            this.input.style.opacity = '1';
+            this.input.style.cursor = 'text';
+            
+            // Mostrar el cursor personalizado nuevamente
+            if (this.cursor) {
+                this.cursor.style.display = 'inline-block';
+                this.updateCursorPosition();
+            }
+            
+            this.addOutputLine('🎆 ¡Celebración terminada! La terminal está lista para nuevos comandos.', 'success');
+            
+            originalClear();
+        };
+        
+        this.addOutputLine('🎆 Los fuegos artificiales continuarán hasta que recargues la página o uses "clear"', 'text');
+        this.addOutputLine('💡 Escribe "clear" para detener la celebración y reactivar la terminal', 'text');
+        this.addOutputLine('🎭 ¡Disfruta del espectáculo mientras dure! 🎭', 'text');
+        this.addOutputLine('', 'text');
+        this.addOutputLine('🎪 ¡LA TERMINAL ESTÁ EN MODO CELEBRACIÓN! 🎪', 'warning');
+        this.addOutputLine('🚫 Input desactivado temporalmente', 'warning');
+    }
 }
 
 import config from './config.js';
@@ -1718,11 +1901,23 @@ Terminal.prototype.initMessageCountSubscription = async function() {
             }
         );
         
-        // Crear suscripción para actualizaciones de ubicación
+        // Crear suscripción para actualizaciones de ubicación y detección de game over
         this._unsubscribeGameDocument = subscribeToGameDocument(
             gameCode,
             (roomTitle) => {
                 this.updateCurrentRoom(roomTitle);
+            },
+            (gameOver) => {
+                if (gameOver === true) {
+                    this.addOutputLine('🎮 ¡GAME OVER DETECTADO EN LA BASE DE DATOS! 🎮', 'warning');
+                    this.addOutputLine('🎆 ¡ACTIVANDO FUEGOS ARTIFICIALES AUTOMÁTICAMENTE! 🎆', 'success');
+                    this.addOutputLine('', 'text');
+                    
+                    // Pequeño delay para que se vean los mensajes antes de los fuegos
+                    setTimeout(() => {
+                        this.fireworksEffect(true);
+                    }, 1000);
+                }
             }
         );
         

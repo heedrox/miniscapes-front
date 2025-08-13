@@ -87,8 +87,8 @@ export function subscribeToMessageCount(gameCode, onCountChange, onMessagesChang
   }
 }
 
-// Subscribe to game document for current room updates
-export function subscribeToGameDocument(gameCode, onRoomChange) {
+// Subscribe to game document for current room updates and game over detection
+export function subscribeToGameDocument(gameCode, onRoomChange, onGameOver) {
   if (!gameCode || typeof onRoomChange !== 'function') {
     return () => {};
   }
@@ -103,13 +103,21 @@ export function subscribeToGameDocument(gameCode, onRoomChange) {
         try {
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
+            
             // Llamar al callback con el título de la habitación actual
             if (data.currentRoomTitle) {
               onRoomChange(data.currentRoomTitle);
             }
+            
+            // Detectar cambios en gameOver y llamar al callback correspondiente
+            if (onGameOver && typeof onGameOver === 'function') {
+              if (data.gameOver === true) {
+                onGameOver(true);
+              }
+            }
           }
         } catch (callbackError) {
-          // Error silencioso en callback
+          // Error silencioso en suscripción
         }
       },
       (error) => {
