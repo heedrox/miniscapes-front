@@ -3,91 +3,728 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Terminal Web</title>
+    <title>Miniscapes - Aventuras de Dron Johnson</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: 'JetBrains Mono', monospace;
+            color: #00ff00;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .intro-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #000;
+        }
+
+        .intro-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .intro-title {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .intro-subtitle {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        .adventures-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            margin-bottom: 30px;
+            gap: 0px 25px;
+        }
+
+        /* 2 columnas en pantallas medianas */
+        @media (min-width: 768px) {
+            .adventures-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0px 25px;
+            }
+        }
+
+        /* 3 columnas en pantallas grandes */
+        @media (min-width: 1200px) {
+            .adventures-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0px 25px;
+            }
+        }
+
+        .adventure-banner {
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .adventure-banner.coming-soon {
+            opacity: 0.7;
+        }
+
+        .adventure-banner.coming-soon:hover {
+            opacity: 1;
+        }
+
+        .adventure-image-placeholder {
+            height: 180px;
+            background: linear-gradient(45deg, #00ff00, #008000);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .adventure-image {
+            margin-bottom: 20px;
+        }
+
+        .adventure-image img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .adventure-image img:hover {
+            transform: scale(1.02);
+        }
+
+        .adventure-image.clickable {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .adventure-image.clickable:hover .banner-overlay {
+            opacity: 1;
+        }
+
+        .banner-overlay span {
+            color: #00ff00;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .partida-code-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .partida-code-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #00ff00;
+        }
+
+        .partida-code-section input {
+            width: 200px;
+            padding: 10px;
+            border: 2px solid #00ff00;
+            background: #000;
+            color: #00ff00;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1em;
+            text-align: center;
+            text-transform: lowercase;
+        }
+
+        .partida-code-section input:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Asegurar que todos los inputs de código sean lowercase */
+        .partida-code-section input[type="text"] {
+            text-transform: lowercase;
+        }
+
+        .code-validation {
+            margin-top: 8px;
+            font-size: 0.9em;
+            min-height: 20px;
+        }
+
+        .code-validation.valid {
+            color: #00ff00;
+        }
+
+        .code-validation.invalid {
+            color: #ff4444;
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #000;
+            margin: 5% auto;
+            padding: 0;
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 20px;
+            border-bottom: 1px solid #00ff00;
+            border-radius: 13px 13px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #00ff00;
+            font-size: 1.5em;
+        }
+
+        .modal-close {
+            color: #00ff00;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* Modal de Próximamente */
+        .coming-soon-modal {
+            max-width: 400px;
+        }
+
+        .coming-soon-content {
+            text-align: center;
+        }
+
+        .coming-soon-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .coming-soon-content h3 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .coming-soon-content p {
+            margin-bottom: 25px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .coming-soon-progress {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 255, 0, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #008000);
+            border-radius: 4px;
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        /* Texto de futuras aventuras */
+        .future-adventures-text {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px dashed rgba(0, 255, 0, 0.3);
+            border-radius: 8px;
+            background: rgba(0, 255, 0, 0.02);
+        }
+
+        .future-adventures-text:hover {
+            border-color: rgba(0, 255, 0, 0.6);
+            background: rgba(0, 255, 0, 0.05);
+            transform: scale(1.02);
+        }
+
+        .future-adventures-text span {
+            font-size: 1.1em;
+            color: #00ff00;
+            font-style: italic;
+            opacity: 0.7;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .future-adventures-text:hover span {
+            opacity: 1;
+        }
+
+        .reality-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin-top: 10px;
+        }
+
+        .reality-btn {
+            padding: 10px 15px;
+            border: 2px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .reality-btn:hover {
+            background: #00ff00;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+        }
+
+        .reality-btn.disabled {
+            border-color: #666;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .reality-btn.disabled:hover {
+            background: transparent;
+            color: #666;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .how-it-works {
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 25px;
+            background: rgba(0, 255, 0, 0.05);
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .how-it-works h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .how-it-works p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .setup-list {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .setup-list h3 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+
+        .setup-list ol {
+            padding-left: 20px;
+        }
+
+        .setup-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .remote-note {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #ffa500;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .remote-note h4 {
+            margin: 0 0 10px 0;
+            color: #ffa500;
+            font-size: 1.1em;
+        }
+
+        .remote-note strong {
+            color: #ffa500;
+        }
+
+        @media (max-width: 767px) {
+            .intro-container {
+                padding: 15px;
+            }
+            
+            .intro-title {
+                font-size: 2em;
+            }
+            
+            .reality-buttons {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .reality-btn {
+                min-width: auto;
+                padding: 8px 12px;
+                font-size: 0.75em;
+            }
+        }
+
+        /* Ajustes para pantallas medianas */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .reality-btn {
+                min-width: 120px;
+                padding: 10px 12px;
+                font-size: 0.75em;
+            }
+        }
+
+        /* Ajustes para pantallas grandes */
+        @media (min-width: 1200px) {
+            .reality-btn {
+                min-width: 110px;
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+
+    <script>
+        function openGameModal() {
+            const modal = document.getElementById('gameModal');
+            modal.style.display = 'block';
+            document.getElementById('modalPartidaCode').focus();
+            document.body.style.overflow = 'hidden'; // Prevenir scroll
+        }
+
+        function showComingSoon(title) {
+            const modal = document.getElementById('comingSoonModal');
+            const titleElement = document.getElementById('comingSoonTitle');
+            titleElement.textContent = title;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeComingSoonModal() {
+            const modal = document.getElementById('comingSoonModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeGameModal() {
+            const modal = document.getElementById('gameModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+            // Limpiar validación
+            document.getElementById('modalCodeValidation').textContent = '';
+            // Deshabilitar botones
+            document.querySelectorAll('.modal-body .reality-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function validateModalPartidaCode() {
+            const code = document.getElementById('modalPartidaCode').value;
+            const validation = document.getElementById('modalCodeValidation');
+            const buttons = document.querySelectorAll('.modal-body .reality-btn');
+            
+            if (code.length >= 5) {
+                validation.textContent = '✅ Código válido';
+                validation.className = 'code-validation valid';
+                
+                // Habilitar botones
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.onclick = function() {
+                        const reality = this.id.replace('modalBtn', '').toLowerCase();
+                        const partidaCode = document.getElementById('modalPartidaCode').value;
+                        
+                        // Traducir realidades a códigos del sistema
+                        let realityCode;
+                        switch(reality) {
+                            case 'realidad1':
+                                realityCode = '4815';
+                                break;
+                            case 'realidad2':
+                                realityCode = '1623';
+                                break;
+                            case 'neutral':
+                                realityCode = '00f0';
+                                break;
+                            default:
+                                realityCode = reality;
+                        }
+                        
+                        const url = `terminal.html?/${realityCode}/${partidaCode}`;
+                        window.location.href = url;
+                    };
+                });
+            } else {
+                validation.textContent = '❌ Mínimo 5 caracteres';
+                validation.className = 'code-validation invalid';
+                
+                // Deshabilitar botones
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const gameModal = document.getElementById('gameModal');
+            const comingSoonModal = document.getElementById('comingSoonModal');
+            
+            if (event.target === gameModal) {
+                closeGameModal();
+            } else if (event.target === comingSoonModal) {
+                closeComingSoonModal();
+            }
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const gameModal = document.getElementById('gameModal');
+                const comingSoonModal = document.getElementById('comingSoonModal');
+                
+                if (gameModal.style.display !== 'none') {
+                    closeGameModal();
+                } else if (comingSoonModal.style.display !== 'none') {
+                    closeComingSoonModal();
+                }
+            }
+        });
+
+        // Validar código en tiempo real
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('modalPartidaCode');
+            if (codeInput) {
+                codeInput.addEventListener('input', validateModalPartidaCode);
+            }
+        });
+    </script>
 </head>
 <body>
-    <div class="terminal-container">
-        <div class="terminal-header">
-            <div class="terminal-buttons">
-                <div class="button close"></div>
-                <div class="button minimize"></div>
-                <div class="button maximize"></div>
+    <div class="intro-container">
+        <div class="intro-header">
+            <h1 class="intro-title">MINISCAPES</h1>
+            <p class="intro-subtitle">Mini Escape Rooms de Acceso Rápido</p>
+        </div>
+
+        <div class="adventures-grid">
+            <!-- Aventura 1: Islas Gemelas -->
+            <div class="adventure-banner" id="twinIslandsBanner">
+                <div class="adventure-image clickable" onclick="openGameModal()">
+                    <img src="images/twin-islands-banner.jpg" alt="Dron Johnson en las Islas Gemelas" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                    <div class="banner-overlay">
+                        <span>🖱️ Haz clic para jugar</span>
+                    </div>
+                </div>
             </div>
-            <div class="terminal-title" id="terminalTitle">dron@johnson:~ <span id="messageCount" style="opacity:0.8; font-weight:600;"></span></div>
-            <div class="reset-button-container">
-                <button class="reset-button" id="resetButton" title="Resetear juego y conversaciones">
-                    <span class="reset-icon">🔄</span>
-                </button>
+
+            <!-- Aventura 2: Desconectando -->
+            <div class="adventure-banner coming-soon">
+                <div class="adventure-image clickable" onclick="showComingSoon('Desconectando a Dron Johnson')">
+                    <img src="images/desconectando-dron-banner.jpeg" alt="Desconectando a Dron Johnson" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                    <div class="banner-overlay">
+                        <span>🖱️ Haz clic para más información</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aventura 3: Futuras -->
+            <div class="adventure-banner coming-soon">
+                <div class="future-adventures-text clickable" onclick="showComingSoon('Más Aventuras')">
+                    <span>Próximamente más aventuras...</span>
+                </div>
             </div>
         </div>
-        
-        <!-- Barra de estado del dron -->
-        <div class="drone-status-bar" id="droneStatusBar">
-            <div class="status-item">
-                <span class="status-icon">📍</span>
-                <span class="status-label">Ubicación:</span>
-                <span class="status-value" id="currentRoomDisplay">Conectando...</span>
+
+        <div class="how-it-works">
+            <h2>¿Cómo jugar?</h2>
+            
+            <p><strong>"Miniscapes"</strong> son mini escape rooms de acceso rápido, perfecto para 2+ personas. Cada aventura tiene 3 escenarios de 10-15 minutos que puedes pausar y retomar cuando quieras. ¡Ideal para presencial o remoto, siempre con un ordenador por persona!</p>
+
+            <div class="setup-list">
+                <h3>🚀 Configuración en 4 pasos:</h3>
+                <ol>
+                    <li><strong>Formar equipos:</strong> Divide a tu grupo en dos equipos colaborativos. ¡Cada uno tendrá su propia "realidad" para trabajar en conjunto!</li>
+                    <li><strong>Acceso individual:</strong> Cada persona se conecta desde su ordenador. ¡Nunca compartas tu ventana!</li>
+                    <li><strong>Elegir realidad:</strong> Selecciona tu realidad, entre la Realidad 1 o Realidad 2. Debe haber una persona en cada realidad.</li>
+                    <li><strong>¡A jugar!</strong> Es hora de dar instrucciones a Dron Johnson y resolver el misterio conjuntamente.</li>
+                </ol>
+            </div>
+
+            <div class="remote-note">
+                <h4>💻 Consejo para juego remoto:</h4>
+                <p>Si juegas por videoconferencia, puedes compartir la <strong>"Realidad Neutra"</strong> para que todos vean la información común. ¡Pero mantén tu realidad individual abierta en otra pestaña para tener toda la información necesaria para colaborar con la otra realidad!</p>
             </div>
         </div>
-        
-        <div class="terminal-body">
-            <div class="terminal-output" id="terminalOutput">
-                <div class="output-line">
-                    <span class="prompt">$</span>
-                    <span class="command">Bienvenido al Sistema de Control del Dron Johnson</span>
-                </div>
-                <div class="output-line">
-                    <span class="text">Escribe instrucciones naturales para controlar el dron...</span>
-                </div>
-                <div class="output-line">
-                    <span class="prompt">$</span>
-                    <span class="command">help</span>
-                </div>
-                <div class="output-line">
-                    <span class="text">Comandos básicos disponibles:</span>
-                </div>
-                <div class="output-line">
-                    <span class="text">- help: Muestra esta ayuda</span>
-                </div>
-                <div class="output-line">
-                    <span class="text">- clear: Limpia la terminal</span>
-                </div>
-                <div class="output-line">
-                    <span class="text">- files: Abre panel de archivos</span>
-                </div>
+    </div>
+
+    <!-- Modal del juego -->
+    <div id="gameModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🚁 Dron Johnson en las Islas Gemelas</h2>
+                <span class="modal-close" onclick="closeGameModal()">&times;</span>
             </div>
             
-            <div class="terminal-input-line">
-                <span class="prompt">$</span>
-                <input type="text" id="terminalInput" class="terminal-input" placeholder="Escribe un comando..." autocomplete="off">
+            <div class="modal-body">
+                <div class="partida-code-section">
+                    <label for="modalPartidaCode">Introduce el código de partida:</label>
+                    <input type="text" id="modalPartidaCode" placeholder="Mínimo 5 caracteres" maxlength="20">
+                    <div class="code-validation" id="modalCodeValidation"></div>
+                </div>
+                
+                <div class="reality-buttons">
+                    <button class="reality-btn" id="modalBtnNeutral" disabled>🎮 Jugar - Realidad Neutra</button>
+                    <button class="reality-btn" id="modalBtnRealidad1" disabled>🎮 Jugar - Realidad 1</button>
+                    <button class="reality-btn" id="modalBtnRealidad2" disabled>🎮 Jugar - Realidad 2</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Panel de archivos del dron -->
-    <div class="files-panel" id="filesPanel">
-        <div class="files-header">
-            <h3>🚁 Archivos del Dron</h3>
-            <button class="close-panel" id="closePanel">×</button>
-        </div>
-        <div class="files-content" id="filesContent">
-            <div class="no-files">
-                <p>📁 No hay archivos descargados</p>
-                <p>Usa comandos del dron para capturar contenido</p>
+    <!-- Modal de Próximamente -->
+    <div id="comingSoonModal" class="modal" style="display: none;">
+        <div class="modal-content coming-soon-modal">
+            <div class="modal-header">
+                <h2>⏳ PRÓXIMAMENTE</h2>
+                <span class="modal-close" onclick="closeComingSoonModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="coming-soon-content">
+                    <div class="coming-soon-icon">🚧</div>
+                    <h3 id="comingSoonTitle">Nueva Aventura</h3>
+                    <p>Esta aventura está en desarrollo. ¡Mantened la atención para más novedades!</p>
+                    <div class="coming-soon-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <span class="progress-text">En desarrollo...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Solapa para abrir el panel -->
-    <div class="files-tab" id="filesTab">
-        <div class="tab-content">
-            <span class="tab-icon">📁</span>
-            <span class="tab-text">Archivos</span>
-        </div>
-    </div>
-
-    <script type="module" src="script.js"></script>
 </body>
 </html> 

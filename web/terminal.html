@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Terminal Web</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <div class="button close"></div>
+                <div class="button minimize"></div>
+                <div class="button maximize"></div>
+            </div>
+            <div class="terminal-title" id="terminalTitle">dron@johnson:~ <span id="messageCount" style="opacity:0.8; font-weight:600;"></span></div>
+            <div class="reset-button-container">
+                <button class="reset-button" id="resetButton" title="Resetear juego y conversaciones">
+                    <span class="reset-icon">🔄</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Barra de estado del dron -->
+        <div class="drone-status-bar" id="droneStatusBar">
+            <div class="status-item">
+                <span class="status-icon">📍</span>
+                <span class="status-label">Ubicación:</span>
+                <span class="status-value" id="currentRoomDisplay">Conectando...</span>
+            </div>
+        </div>
+        
+        <div class="terminal-body">
+            <div class="terminal-output" id="terminalOutput">
+                <div class="output-line">
+                    <span class="prompt">$</span>
+                    <span class="command">Bienvenido al Sistema de Control del Dron Johnson</span>
+                </div>
+                <div class="output-line">
+                    <span class="text">Escribe instrucciones naturales para controlar el dron...</span>
+                </div>
+                <div class="output-line">
+                    <span class="prompt">$</span>
+                    <span class="command">help</span>
+                </div>
+                <div class="output-line">
+                    <span class="text">Comandos básicos disponibles:</span>
+                </div>
+                <div class="output-line">
+                    <span class="text">- help: Muestra esta ayuda</span>
+                </div>
+                <div class="output-line">
+                    <span class="text">- clear: Limpia la terminal</span>
+                </div>
+                <div class="output-line">
+                    <span class="text">- files: Abre panel de archivos</span>
+                </div>
+            </div>
+            
+            <div class="terminal-input-line">
+                <span class="prompt">$</span>
+                <input type="text" id="terminalInput" class="terminal-input" placeholder="Escribe un comando..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de archivos del dron -->
+    <div class="files-panel" id="filesPanel">
+        <div class="files-header">
+            <h3>🚁 Archivos del Dron</h3>
+            <button class="close-panel" id="closePanel">×</button>
+        </div>
+        <div class="files-content" id="filesContent">
+            <div class="no-files">
+                <p>📁 No hay archivos descargados</p>
+                <p>Usa comandos del dron para capturar contenido</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solapa para abrir el panel -->
+    <div class="files-tab" id="filesTab">
+        <div class="tab-content">
+            <span class="tab-icon">📁</span>
+            <span class="tab-text">Archivos</span>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html> 

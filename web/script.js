@@ -736,24 +736,7 @@ class Terminal {
         });
     }
     
-    catFile(filename) {
-        if (!filename) {
-            this.addOutputLine('Uso: cat [archivo]', 'warning');
-            return;
-        }
-        
-        const files = {
-            'README.md': '# Terminal Web\n\nUna terminal web responsiva...',
-            'package.json': '{\n  "name": "terminal-web",\n  "version": "1.0.0"\n}',
-            'index.html': '<!DOCTYPE html>\n<html>\n<head>\n  <title>Terminal Web</title>\n</head>\n</html>'
-        };
-        
-        if (files[filename]) {
-            this.addOutputLine(files[filename], 'text');
-        } else {
-            this.addOutputLine(`cat: ${filename}: No existe el archivo`, 'error');
-        }
-    }
+
     
     touchFile(filename) {
         if (!filename) {
