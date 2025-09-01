@@ -5653,7 +5653,23 @@ Lines added: 18, lines removed: 1
 3. **Sistema traduce** "realidad1" → "4815"
 4. **Se redirige** a `terminal.html?/4815/sesion1`
 
-### **🎯 Estruct
+### **🎯 Estructura de URL final:**
+- **Realidad 1:** `terminal.html?/4815/{código_partida}`
+- **Realidad 2:** `terminal.html?/1623/{código_partida}`
+- **Realidad Neutra:** `terminal.html?/00f0/{código_partida}`
+
+### **🔧 Ventajas del sistema:**
+- **Códigos del sistema** correctos (4815, 1623, 00f0)
+- **Códigos de partida personalizados** para cada sesión
+- **URLs consistentes** con tu configuración actual
+- **Fácil mantenimiento** si cambian los códigos
+
+### **�� Ejemplos prácticos:**
+- **Código "equipoA" + Realidad 1** → `terminal.html?/4815/equipoA`
+- **Código "summer2024" + Realidad 2** → `terminal.html?/1623/summer2024`
+- **Código "sesion1" + Realidad Neutra** → `terminal.html?/00f0/sesion1`
+
+Ahora el sistema genera URLs exactamente como las espera tu configuración en `config.js`. ¿Te gusta cómo funciona la traducción?
 
 ---
 

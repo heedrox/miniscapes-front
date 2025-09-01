@@ -571,8 +571,8 @@
                                 realityCode = reality;
                         }
                         
-                        const url = `terminal.html?/${realityCode}/${partidaCode}`;
-                        window.location.href = url;
+                        const url = `terminal.html?/${realityCode}/${partidaCode.toLowerCase()}`;
+                        window.open(url, 'target=_blank')
                     };
                 });
             } else {
