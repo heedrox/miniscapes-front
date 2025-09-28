@@ -364,6 +364,43 @@
             margin-top: 10px;
         }
 
+        .reality-instruction {
+            text-align: center;
+            margin: 20px 0 15px 0;
+        }
+
+        .reality-instruction p {
+            color: #00ff00;
+            font-size: 0.9em;
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .main-reality-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin-bottom: 15px;
+        }
+
+        .neutral-reality-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .neutral-link {
+            color: #666;
+            font-size: 0.75em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .neutral-link:hover {
+            color: #00ff00;
+        }
+
         .reality-btn {
             padding: 10px 15px;
             border: 2px solid #00ff00;
@@ -479,10 +516,21 @@
                 gap: 5px;
             }
             
+            .main-reality-buttons {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
             .reality-btn {
                 min-width: auto;
                 padding: 8px 12px;
                 font-size: 0.75em;
+            }
+            
+            .neutral-link {
+                font-size: 0.7em;
             }
         }
 
@@ -533,8 +581,10 @@
             document.body.style.overflow = 'auto'; // Restaurar scroll
             // Limpiar validación
             document.getElementById('modalCodeValidation').textContent = '';
+            // Ocultar link de realidad neutra
+            document.getElementById('neutralRealityLink').style.display = 'none';
             // Deshabilitar botones
-            document.querySelectorAll('.modal-body .reality-btn').forEach(btn => {
+            document.querySelectorAll('.main-reality-buttons .reality-btn').forEach(btn => {
                 btn.disabled = true;
             });
         }
@@ -542,13 +592,17 @@
         function validateModalPartidaCode() {
             const code = document.getElementById('modalPartidaCode').value;
             const validation = document.getElementById('modalCodeValidation');
-            const buttons = document.querySelectorAll('.modal-body .reality-btn');
+            const buttons = document.querySelectorAll('.main-reality-buttons .reality-btn');
+            const neutralLink = document.getElementById('neutralRealityLink');
             
             if (code.length >= 5) {
                 validation.textContent = '✅ Código válido';
                 validation.className = 'code-validation valid';
                 
-                // Habilitar botones
+                // Mostrar link de realidad neutra
+                neutralLink.style.display = 'block';
+                
+                // Habilitar botones principales
                 buttons.forEach(btn => {
                     btn.disabled = false;
                     btn.onclick = function() {
@@ -564,9 +618,6 @@
                             case 'realidad2':
                                 realityCode = '1623';
                                 break;
-                            case 'neutral':
-                                realityCode = '00F0';
-                                break;
                             default:
                                 realityCode = reality;
                         }
@@ -575,9 +626,22 @@
                         window.open(url, 'target=_blank')
                     };
                 });
+                
+                // Configurar link de realidad neutra
+                const neutralBtn = document.getElementById('modalBtnNeutral');
+                neutralBtn.onclick = function(e) {
+                    e.preventDefault();
+                    const partidaCode = document.getElementById('modalPartidaCode').value;
+                    const realityCode = '00F0';
+                    const url = `terminal.html?/${realityCode}/${partidaCode.toLowerCase()}`;
+                    window.open(url, 'target=_blank');
+                };
             } else {
                 validation.textContent = '❌ Mínimo 5 caracteres';
                 validation.className = 'code-validation invalid';
+                
+                // Ocultar link de realidad neutra
+                neutralLink.style.display = 'none';
                 
                 // Deshabilitar botones
                 buttons.forEach(btn => {
@@ -694,10 +758,17 @@
                     <div class="code-validation" id="modalCodeValidation"></div>
                 </div>
                 
-                <div class="reality-buttons">
-                    <button class="reality-btn" id="modalBtnNeutral" disabled>🎮 Jugar - Realidad Neutra</button>
+                <div class="reality-instruction">
+                    <p>Elige realidad (una persona mínimo en cada)</p>
+                </div>
+                
+                <div class="main-reality-buttons">
                     <button class="reality-btn" id="modalBtnRealidad1" disabled>🎮 Jugar - Realidad 1</button>
                     <button class="reality-btn" id="modalBtnRealidad2" disabled>🎮 Jugar - Realidad 2</button>
+                </div>
+                
+                <div class="neutral-reality-link" id="neutralRealityLink" style="display: none;">
+                    <a href="#" id="modalBtnNeutral" class="neutral-link">Si vas a compartir tu pantalla, puedes usar la realidad neutra (sin archivos)</a>
                 </div>
             </div>
         </div>
