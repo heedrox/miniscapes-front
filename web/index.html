@@ -390,15 +390,15 @@
         }
 
         .neutral-link {
-            color: #666;
+            color: #0066ff;
             font-size: 0.75em;
-            text-decoration: none;
+            text-decoration: underline;
             cursor: pointer;
             transition: color 0.3s ease;
         }
 
         .neutral-link:hover {
-            color: #00ff00;
+            color: #0088ff;
         }
 
         .reality-btn {
@@ -426,6 +426,33 @@
             box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
         }
 
+        /* Estilos específicos para cada realidad */
+        .reality-btn.reality-1 {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .reality-btn.reality-1:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.4);
+        }
+
+        .reality-btn.reality-2 {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);
+        }
+
+        .reality-btn.reality-2:hover {
+            background: #ff4444;
+            color: #fff;
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
+        }
+
         .reality-btn.disabled {
             border-color: #666;
             color: #666;
@@ -433,6 +460,35 @@
         }
 
         .reality-btn.disabled:hover {
+            background: transparent;
+            color: #666;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Estilos disabled específicos para cada realidad */
+        .reality-btn.reality-1.disabled {
+            border-color: #666;
+            color: #666;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .reality-btn.reality-1.disabled:hover {
+            background: transparent;
+            color: #666;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .reality-btn.reality-2.disabled {
+            border-color: #666;
+            color: #666;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .reality-btn.reality-2.disabled:hover {
             background: transparent;
             color: #666;
             transform: none;
@@ -763,8 +819,8 @@
                 </div>
                 
                 <div class="main-reality-buttons">
-                    <button class="reality-btn" id="modalBtnRealidad1" disabled>🎮 Jugar - Realidad 1</button>
-                    <button class="reality-btn" id="modalBtnRealidad2" disabled>🎮 Jugar - Realidad 2</button>
+                    <button class="reality-btn reality-1" id="modalBtnRealidad1" disabled>🎮 Jugar - Realidad 1</button>
+                    <button class="reality-btn reality-2" id="modalBtnRealidad2" disabled>🎮 Jugar - Realidad 2</button>
                 </div>
                 
                 <div class="neutral-reality-link" id="neutralRealityLink" style="display: none;">
